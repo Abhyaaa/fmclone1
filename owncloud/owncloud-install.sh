@@ -259,6 +259,8 @@ cat <<EOF | sudo tee /etc/NAE/help.html >/dev/null
 <p>
 Alternatively, you may connect securely with an
 <a href="$OC_CLIENTS" target="_owncloud_download"><b>ownCloud desktop or mobile client</b></a>:
+</p>
+<p>
 <table>
 <tr>
 <td align="right">ownCloud Server:</td>
@@ -273,6 +275,8 @@ Alternatively, you may connect securely with an
 <td><b>%NIMBIXPASSWD%</b><br></td>
 </tr>
 </table>
+</p>
+<p>
 Please note that the password is case sensitive and should not contain any
 leading or trailing spaces when entered.  It is recommended that you copy and
 paste it from above directly into the ownCloud client password prompt to
