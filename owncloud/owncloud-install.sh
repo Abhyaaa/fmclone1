@@ -105,6 +105,27 @@ if [ -n "$WITH_HTTPD" ]; then
     # Enable external pwauth
     cat <<EOF | sudo tee -a /etc/httpd/conf.d/z-owncloud-access.conf >/dev/null
 
+<IfModule mod_php5.c>
+    php_value upload_max_filesize 100G
+    php_value post_max_size 0
+    php_value max_input_time 0
+    php_value max_execution_time 0
+    php_value output_buffering 0
+    php_value memory_limit 1G
+    php_value mbstring.func_overload 0
+    php_value always_populate_raw_post_data -1
+    php_value default_charset 'UTF-8'
+    php_value output_buffering off
+    <IfModule mod_env.c>
+        SetEnv htaccessWorking true
+    </IfModule>
+</IfModule>
+
+<IfModule reqtimeout_module>
+  RequestReadTimeout header=0
+  RequestReadTimeout body=0
+</IfModule>
+
 <Location "/owncloud">
     # Require SSL connection for password protection.
     SSLRequireSSL
@@ -116,12 +137,6 @@ if [ -n "$WITH_HTTPD" ]; then
     Require user $OC_USER
 </Location>
 EOF
-
-    # Allow very large file uploads, unlimited post size
-    sed -i -e 's/upload_max_filesize .*/upload_max_filesize 100G/' \
-        /etc/httpd/conf.d/owncloud-defaults.inc
-    sed -i -e 's/post_max_size .*/post_max_size 0/' \
-        /etc/httpd/conf.d/owncloud-defaults.inc
 
 elif [ -n "$WITH_NGINX" ]; then
     echo "Configuring for nginx..."
