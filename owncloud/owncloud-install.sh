@@ -271,8 +271,8 @@ chown -R $OC_USER.$OC_USER /var/lib/owncloud /var/lib/php/session
 chown $OC_USER.$OC_USER /etc/owncloud /etc/owncloud/config.php
 chgrp $OC_USER /usr/bin/pwauth
 
-OC_URL=https://%PUBLICADDR%/owncloud/index.php?user=nimbix&password=%NIMBIXPASSWD%
-OC_CLIENTS=https://owncloud.org/sync-clients/
+OC_URL="https://%PUBLICADDR%/owncloud/index.php?user=nimbix&password=%NIMBIXPASSWD%"
+OC_CLIENTS="https://owncloud.org/sync-clients/"
 mkdir -p /etc/NAE
 cat <<EOF | sudo tee /etc/NAE/url.txt >/dev/null
 $OC_URL
