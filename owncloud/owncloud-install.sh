@@ -110,7 +110,6 @@ if [ -n "$WITH_HTTPD" ]; then
     php_value post_max_size 0
     php_value max_input_time 0
     php_value max_execution_time 0
-    php_value output_buffering 0
     php_value memory_limit 1G
     php_value mbstring.func_overload 0
     php_value always_populate_raw_post_data -1
@@ -122,20 +121,20 @@ if [ -n "$WITH_HTTPD" ]; then
 </IfModule>
 
 <IfModule reqtimeout_module>
-  RequestReadTimeout header=0
-  RequestReadTimeout body=0
+    RequestReadTimeout header=0
+    RequestReadTimeout body=0
 </IfModule>
 
-<Location "/owncloud">
-    # Require SSL connection for password protection.
-    SSLRequireSSL
-
-    AuthType Basic
-    AuthName "Nimbix File Manager"
-    AuthBasicProvider external
-    AuthExternal pwauth
-    Require user $OC_USER
-</Location>
+#<Location "/owncloud">
+#    # Require SSL connection for password protection.
+#    SSLRequireSSL
+#
+#    AuthType Basic
+#    AuthName "Nimbix File Manager"
+#    AuthBasicProvider external
+#    AuthExternal pwauth
+#    Require user $OC_USER
+#</Location>
 EOF
 
 elif [ -n "$WITH_NGINX" ]; then
@@ -239,6 +238,17 @@ sed -i -e 's|apps/user_pwauth|user_pwauth|' \
 $occ app:enable user_pwauth
 $occ config:app:set --value=/usr/bin/pwauth user_pwauth pwauth_path
 
+# $_REQUEST is a combination of $_POST and $_GET
+sed -i -e 's/_POST\["user"\]/_REQUEST\["user"\]/g' \
+    /usr/share/owncloud/lib/base.php
+sed -i -e 's/_POST\["password"\]/_REQUEST\["password"\]/g' \
+    /usr/share/owncloud/lib/base.php
+sed -i -e "s/_POST\['password'\]/_REQUEST\['password'\]/g" \
+    /usr/share/owncloud/lib/base.php
+# Don't check requesttoken
+sed -i -e 's/passesCSRFCheck() {/passesCSRFCheck() { return true;/' \
+    /usr/share/owncloud/lib/private/appframework/http/request.php
+
 OC_USER_UID=$(/usr/bin/id -u $OC_USER 2>/dev/null)
 if [ -n "$OC_USER_UID" ]; then
     $occ config:app:set --value=$OC_USER_UID user_pwauth uid_list
@@ -261,8 +271,7 @@ chown -R $OC_USER.$OC_USER /var/lib/owncloud /var/lib/php/session
 chown $OC_USER.$OC_USER /etc/owncloud /etc/owncloud/config.php
 chgrp $OC_USER /usr/bin/pwauth
 
-#OC_URL=https://nimbix:%NIMBIXPASSWD%@%PUBLICADDR%/owncloud/index.php?user=nimbix
-OC_URL=https://%PUBLICADDR%/owncloud/index.php?user=nimbix
+OC_URL=https://%PUBLICADDR%/owncloud/index.php?user=nimbix&password=%NIMBIXPASSWD%
 OC_CLIENTS=https://owncloud.org/sync-clients/
 mkdir -p /etc/NAE
 cat <<EOF | sudo tee /etc/NAE/url.txt >/dev/null
