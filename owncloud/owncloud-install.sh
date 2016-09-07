@@ -98,27 +98,22 @@ if [ -n "$WITH_HTTPD" ]; then
         's|^SSLCertificateFile.*|SSLCertificateFile /etc/JARVICE/cert.pem|' \
         /etc/httpd/conf.d/ssl.conf
 
-    # Allow acess from anywhere
-    cp -a /etc/httpd/conf.d/owncloud-access.conf.avail \
-        /etc/httpd/conf.d/z-owncloud-access.conf
+    # Override default owncloud httpd config...
+    cat <<EOF | sudo tee -a /etc/httpd/conf.d/z-owncloud.conf >/dev/null
+<Directory /usr/share/owncloud/>
+    Include conf.d/owncloud-auth-any.inc
+    Include conf.d/owncloud-options.inc
+</Directory>
 
-    # Enable external pwauth
-    cat <<EOF | sudo tee -a /etc/httpd/conf.d/z-owncloud-access.conf >/dev/null
+<Directory /var/lib/owncloud/apps/>
+    Include conf.d/owncloud-auth-any.inc
+    Include conf.d/owncloud-options.inc
+</Directory>
 
-<IfModule mod_php5.c>
-    php_value upload_max_filesize 100G
-    php_value post_max_size 0
-    php_value max_input_time 0
-    php_value max_execution_time 0
-    php_value memory_limit 1G
-    php_value mbstring.func_overload 0
-    php_value always_populate_raw_post_data -1
-    php_value default_charset 'UTF-8'
-    php_value output_buffering off
-    <IfModule mod_env.c>
-        SetEnv htaccessWorking true
-    </IfModule>
-</IfModule>
+<Directory /var/lib/owncloud/assets/>
+    Include conf.d/owncloud-auth-any.inc
+    Include conf.d/owncloud-options.inc
+</Directory>
 
 <IfModule reqtimeout_module>
     RequestReadTimeout header=0
@@ -135,6 +130,23 @@ if [ -n "$WITH_HTTPD" ]; then
 #    AuthExternal pwauth
 #    Require user $OC_USER
 #</Location>
+EOF
+    cat <<EOF | sudo tee -a /etc/httpd/conf.d/owncloud-options.inc >/dev/null
+
+<IfModule mod_php5.c>
+    php_value upload_max_filesize 100G
+    php_value post_max_size 0
+    php_value max_input_time 0
+    php_value max_execution_time 0
+    php_value memory_limit 1G
+    php_value mbstring.func_overload 0
+    php_value always_populate_raw_post_data -1
+    php_value default_charset 'UTF-8'
+    php_value output_buffering off
+    <IfModule mod_env.c>
+        SetEnv htaccessWorking true
+    </IfModule>
+</IfModule>
 EOF
 
 elif [ -n "$WITH_NGINX" ]; then
