@@ -5,10 +5,10 @@ if [ -x /usr/bin/mysql ]; then
 fi
 
 if [ -x /usr/sbin/php-fpm -a -x /usr/sbin/nginx ]; then
-    /usr/sbin/php-fpm -D && /usr/sbin/nginx
+    sudo /usr/sbin/php-fpm -D && sudo /usr/sbin/nginx
 fi
 
 if [ -x /usr/sbin/httpd ]; then
-    /usr/sbin/httpd -D FOREGROUND
+    sudo /usr/sbin/httpd -D FOREGROUND
 fi
 

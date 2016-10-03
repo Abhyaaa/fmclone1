@@ -238,6 +238,9 @@ $occ config:app:set \
     --value 'ftp,dav,owncloud,sftp,amazons3,dropbox,googledrive,swift,smb' \
     files_external user_mounting_backends
 
+# Check each file or folder at most once per request
+$occ config:system:set --type=int --value=1 filesystem_check_changes
+
 # Empty skel dir to keep extraneous files out of user dirs when created
 $occ config:system:set skeletondirectory
 
