@@ -8,5 +8,5 @@ RUN /tmp/owncloud/owncloud-install.sh --with-httpd && \
 
 ENTRYPOINT ["/usr/local/bin/owncloud-start.sh"]
 
-EXPOSE 443/tcp
+EXPOSE 443/tcp 22/tcp
 
