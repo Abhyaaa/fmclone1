@@ -59,7 +59,7 @@ set -e
 # EPEL repo
 yum -y update; yum clean all; yum -y install epel-release; yum clean all
 
-PACKAGES="sudo pwgen pwauth unzip rsync"
+PACKAGES="sudo pwgen pwauth unzip rsync openssh-server"
 if [ -n "$WITH_HTTPD" ]; then
     PACKAGES+=" owncloud-httpd mod_ssl mod_authnz_external"
 elif [ -n "$WITH_NGINX" ]; then
