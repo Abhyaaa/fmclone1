@@ -14,7 +14,7 @@ fi
 
 if [ -x /usr/sbin/httpd ]; then
     sudo mkdir -p /run/httpd
-    sudo chown root:apache /run/httpd
+    sudo chown root:nimbix /run/httpd
     sudo chmod 750 /run/httpd
     sudo /usr/sbin/httpd -D FOREGROUND
 fi
