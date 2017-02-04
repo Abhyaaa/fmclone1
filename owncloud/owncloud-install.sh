@@ -360,3 +360,6 @@ programmatically accessing files via ownCloud APIs.
 </p>
 EOF
 
+# Hack around smbpasswd issue
+chmod -x /usr/bin/smbpasswd
+
