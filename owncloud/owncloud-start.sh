@@ -13,6 +13,9 @@ if [ -x /usr/sbin/php-fpm -a -x /usr/sbin/nginx ]; then
 fi
 
 if [ -x /usr/sbin/httpd ]; then
+    sudo mkdir -p /run/httpd
+    sudo chown root:apache /run/httpd
+    sudo chmod 750 /run/httpd
     sudo /usr/sbin/httpd -D FOREGROUND
 fi
 
