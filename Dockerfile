@@ -10,3 +10,4 @@ ENTRYPOINT ["/usr/local/bin/owncloud-start.sh"]
 
 EXPOSE 443/tcp 22/tcp
 
+COPY ./NAE/AppDef.json /etc/NAE/AppDef.json
