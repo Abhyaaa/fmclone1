@@ -59,7 +59,7 @@ set -e
 # Install EPEL repo and wget so we can get OwnCloud packages..
 yum -y update; yum clean all; yum -y install epel-release wget; yum clean all
 
-OC_VER=9.0.4
+OC_VER=9.1.5
 OC_REL=1.el7
 OC_PKGS_URL="https://kojipkgs.fedoraproject.org/packages/owncloud/$OC_VER/$OC_REL/noarch"
 OC_DL_DIR=/tmp/oc
@@ -220,7 +220,7 @@ $occ config:system:set --type=bool --value=true force_ssl
 
 # Deleting trusted_domains config doesn't work due to bug in isTrustedDomain
 sed -i -e 's/return in_array.*/return true;/' \
-    /usr/share/owncloud/lib/private/security/trusteddomainhelper.php
+    /usr/share/owncloud/lib/private/Security/TrustedDomainHelper.php
 
 # Don't allow the user to change name and password
 sed -i -e 's/.*displayNameChangeSupported.*//' \
@@ -279,7 +279,7 @@ sed -i -e "s/_POST\['password'\]/_REQUEST\['password'\]/g" \
     /usr/share/owncloud/lib/base.php
 # Don't check requesttoken
 sed -i -e 's/passesCSRFCheck() {/passesCSRFCheck() { return true;/' \
-    /usr/share/owncloud/lib/private/appframework/http/request.php
+    /usr/share/owncloud/lib/private/AppFramework/Http/Request.php
 
 OC_USER_UID=$(/usr/bin/id -u $OC_USER 2>/dev/null)
 if [ -n "$OC_USER_UID" ]; then
