@@ -270,13 +270,8 @@ sed -i -e 's|apps/user_pwauth|user_pwauth|' \
 $occ app:enable user_pwauth
 $occ config:app:set --value=/usr/bin/pwauth user_pwauth pwauth_path
 
-# $_REQUEST is a combination of $_POST and $_GET
-sed -i -e 's/_POST\["user"\]/_REQUEST\["user"\]/g' \
-    /usr/share/owncloud/lib/base.php
-sed -i -e 's/_POST\["password"\]/_REQUEST\["password"\]/g' \
-    /usr/share/owncloud/lib/base.php
-sed -i -e "s/_POST\['password'\]/_REQUEST\['password'\]/g" \
-    /usr/share/owncloud/lib/base.php
+# Modify the "routes" registration..
+sed -i -e 's/showLoginForm/tryLogin/g' /usr/share/owncloud/core/routes.php
 # Don't check requesttoken
 sed -i -e 's/passesCSRFCheck() {/passesCSRFCheck() { return true;/' \
     /usr/share/owncloud/lib/private/AppFramework/Http/Request.php
@@ -303,7 +298,7 @@ chown -R $OC_USER.$OC_USER /var/lib/owncloud /var/lib/php/session
 chown $OC_USER.$OC_USER /etc/owncloud /etc/owncloud/config.php
 chgrp $OC_USER /usr/bin/pwauth
 
-OC_URL="https://%PUBLICADDR%/owncloud/index.php?user=nimbix&password=%NIMBIXPASSWD%"
+OC_URL="https://%PUBLICADDR%/owncloud/index.php/login?user=nimbix&password=%NIMBIXPASSWD%"
 OC_CLIENTS="https://owncloud.org/sync-clients/"
 mkdir -p /etc/NAE
 cat <<EOF | sudo tee /etc/NAE/url.txt >/dev/null
