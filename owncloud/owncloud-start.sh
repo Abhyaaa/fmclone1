@@ -21,4 +21,3 @@ if [ -x /usr/sbin/httpd ]; then
     sudo chmod 750 /run/httpd
     sudo /usr/sbin/httpd -D FOREGROUND
 fi
-

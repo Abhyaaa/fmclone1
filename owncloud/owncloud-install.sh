@@ -57,30 +57,46 @@ done
 set -e
 
 # Install EPEL repo and wget so we can get OwnCloud packages..
-yum -y update; yum clean all; yum -y install epel-release wget; yum clean all
+#yum -y update; yum clean all; yum -y install epel-release wget php; yum clean all
+yum -y install epel-release wget
 
-OC_VER=9.1.5
-OC_REL=1.el7
-OC_PKGS_URL="https://kojipkgs.fedoraproject.org/packages/owncloud/$OC_VER/$OC_REL/noarch"
+#OC_VER=9.1.5
+OC_VER=10.1.0
+OC_REL=1.1
+#OC_PKGS_URL="https://kojipkgs.fedoraproject.org/packages/owncloud/$OC_VER/$OC_REL/noarch"
+#OC_PKGS_URL="http://download.owncloud.org/download/repositories/production/CentOS_7/noarch/owncloud-files-10.0.10-1.1.noarch.rpm"
+OC_PKGS_URL="http://download.owncloud.org/download/repositories/production/CentOS_7/noarch"
 OC_DL_DIR=/tmp/oc
 echo "Downloading OwnCloud packages from $OC_PKGS_URL..."
 wget -q -r -np -nd -P $OC_DL_DIR -k $OC_PKGS_URL
 
-OC_PKGS="owncloud"
+OC_PKGS="owncloud-files"
 PACKAGES="sudo pwgen pwauth unzip rsync"
 if [ -n "$WITH_HTTPD" ]; then
-    OC_PKGS+=" owncloud-httpd"
+#    OC_PKGS+=" owncloud-httpd"
     PACKAGES+=" mod_ssl mod_authnz_external"
 elif [ -n "$WITH_NGINX" ]; then
-    OC_PKGS+=" owncloud-nginx"
+#    OC_PKGS+=" owncloud-nginx"
+    OC_PKGS+=" "
 fi
 
-if [ -n "$WITH_MARIADB" ]; then
-    OC_PKGS+=" owncloud-mysql"
-    PACKAGES+=" mariadb-server"
-else
-    OC_PKGS+=" owncloud-sqlite"
-fi
+#if [ -n "$WITH_MARIADB" ]; then
+#    OC_PKGS+=" owncloud-mysql"
+#    PACKAGES+=" mariadb-server"
+#else
+#    OC_PKGS+=" owncloud-sqlite"
+#fi
+
+# XX From owncloud docs
+yum install -y -q epel-release http://rpms.remirepo.net/enterprise/remi-release-7.rpm yum-utils \
+  && yum-config-manager --enable remi-php72 \
+  && yum update -y -q \
+  && yum install -y -q \
+    httpd mariadb-server php72 php72-php php72-php-gd \
+    php72-php-mbstring php72-php-mysqlnd php72-php-cli \
+    php72-pecl-apcu redis php72-php-pecl-redis php72-php-common \
+    php72-php-ldap mariadb-server mariadb \
+  && scl enable php72 bash
 
 for PKG in $OC_PKGS; do
     PACKAGES+=" $OC_DL_DIR/$PKG-$OC_VER-$OC_REL.noarch.rpm"
