@@ -287,7 +287,7 @@ chown -R $OC_USER.$OC_USER /var/lib/owncloud /var/lib/php/session
 chown $OC_USER.$OC_USER /etc/owncloud /etc/owncloud/config.php
 chgrp $OC_USER /usr/bin/pwauth
 
-OC_URL="https://%PUBLICADDR%/owncloud/index.php/login?user=nimbix&password=%NIMBIXPASSWD%"
+OC_URL="https://%PUBLICADDR%/owncloud/index.php/login?user=%NIMBIXUSER%&password=%NIMBIXPASSWD%"
 OC_CLIENTS="https://owncloud.org/sync-clients/"
 mkdir -p /etc/NAE
 cat <<EOF | sudo tee /etc/NAE/url.txt >/dev/null
@@ -308,7 +308,7 @@ Alternatively, you may connect securely with an
 </tr>
 <tr>
 <td align="right">User:</td>
-<td><b>nimbix</b><br></td>
+<td><b>%NIMBIXUSER%</b><br></td>
 </tr>
 <tr>
 <td align="right">Password:</td>
@@ -331,10 +331,10 @@ ensure accuracy.
 You may also upload and download files from the command line with a tool
 like curl:
 <pre style="overflow-x:scroll;">
-curl -u nimbix:%NIMBIXPASSWD% -k --upload-file "source_file" "https://%PUBLICADDR%/owncloud/remote.php/webdav/target_file"<br>
+curl -u %NIMBIXUSER%:%NIMBIXPASSWD% -k --upload-file "source_file" "https://%PUBLICADDR%/owncloud/remote.php/webdav/target_file"<br>
 </pre>
 <pre style="overflow-x:scroll;">
-curl -u nimbix:%NIMBIXPASSWD% -k --output "target_file" "https://%PUBLICADDR%/owncloud/remote.php/webdav/source_file"
+curl -u %NIMBIXUSER%:%NIMBIXPASSWD% -k --output "target_file" "https://%PUBLICADDR%/owncloud/remote.php/webdav/source_file"
 </pre>
 </p>
 
