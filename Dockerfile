@@ -1,10 +1,10 @@
 FROM nimbix/centos-base:7
 MAINTAINER Nimbix, Inc.
 
-COPY owncloud/owncloud-install.sh /tmp/owncloud/owncloud-install.sh
+COPY owncloud /tmp/owncloud
 RUN /tmp/owncloud/owncloud-install.sh --with-httpd && \
     rm -rf /tmp/owncloud
-COPY owncloud/owncloud-start.sh /usr/local/bin/owncloud-start.sh
+COPY owncloud-start.sh /usr/local/bin/owncloud-start.sh
 
 ENTRYPOINT ["/usr/local/bin/owncloud-start.sh"]
 
