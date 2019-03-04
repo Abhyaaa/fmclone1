@@ -58,45 +58,7 @@ set -e
 export TERM=dumb
 
 # Install EPEL repo and wget so we can get OwnCloud packages..
-yum -y update; yum clean all; yum -y install epel-release wget; yum clean all
-
-#OC_VER=9.1.8
-#OC_REL=1.1
-#OC_REPO_URL="https://download.owncloud.org/download/repositories/9.1/CentOS_7/repodata/repomd.xml.key"
-#rpm --import $OC_REPO_URL
-#OC_PKGS_URL="https://kojipkgs.fedoraproject.org/packages/owncloud/$OC_VER/$OC_REL/noarch"
-#OC_PKGS_URL="http://download.owncloud.org/download/repositories/9.1/CentOS_7/noarch"
-#http://download.owncloud.org/download/repositories/9.1/CentOS_7/noarch/owncloud-9.1.8-1.1.noarch.rpm
-#OC_DL_DIR=/tmp/oc
-#echo "Downloading OwnCloud packages from $OC_PKGS_URL..."
-#wget -q -r -np -nd -P ${OC_DL_DIR} -k ${OC_PKGS_URL}
-#ls -alF /tmp/oc/
-#yum install -y owncloud owncloud-files
-
-#OC_PKGS="owncloud"
-#PACKAGES="pwgen pwauth rsync"
-#if [ -n "$WITH_HTTPD" ]; then
-##    OC_PKGS+=" owncloud-httpd"
-##    OC_PKGS+=" owncloud-deps-php5 owncloud-files"
-#    PACKAGES+=" mod_ssl mod_authnz_external"
-#elif [ -n "$WITH_NGINX" ]; then
-#    OC_PKGS+=" owncloud-nginx"
-#fi
-
-#if [ -n "$WITH_MARIADB" ]; then
-#    OC_PKGS+=" owncloud-mysql"
-#    PACKAGES+=" mariadb-server"
-#else
-#    OC_PKGS+=" owncloud-sqlite"
-#fi
-
-#yum install -y $PACKAGES; yum clean all; rm -rf $OC_DL_DIR
-
-#for PKG in $OC_PKGS; do
-#    PACKAGES+=" $OC_DL_DIR/$PKG-$OC_VER-$OC_REL.noarch.rpm"
-#done
-
-#yum install -y $PACKAGES; yum clean all; rm -rf $OC_DL_DIR
+yum -y install epel-release wget; yum clean all
 
 # User configs
 [ -z "$OC_USER" ] && OC_USER=nimbix

@@ -1,4 +1,3 @@
-#FROM nimbix/centos-base:7
 FROM centos:7
 MAINTAINER Nimbix, Inc.
 
