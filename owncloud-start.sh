@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Hack around smbpasswd issue
-#chmod +x /usr/bin/smbpasswd
+chmod +x /usr/bin/smbpasswd
 
 if [ -x /usr/sbin/sshd ]; then
     /usr/sbin/sshd-keygen && /usr/sbin/sshd
