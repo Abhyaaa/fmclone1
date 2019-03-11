@@ -19,6 +19,7 @@ if [[ -x /usr/sbin/httpd ]]; then
     sudo mkdir -p /run/httpd
     sudo chmod 01777 /run/httpd
     sudo chmod 750 /run/httpd
-    sudo useradd -o -u 505 -g 505 -M ${USER} || true
+    # extra useradd after platform has created the user already
+#    sudo useradd -o -u 505 -g 505 -M ${USER} || true
     sudo /usr/sbin/httpd -D FOREGROUND
 fi
