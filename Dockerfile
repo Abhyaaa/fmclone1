@@ -1,5 +1,5 @@
 FROM centos:7
-MAINTAINER Nimbix, Inc.
+LABEL maintainer="Nimbix, Inc."
 
 RUN curl -H 'Cache-Control: no-cache' \
         https://raw.githubusercontent.com/nimbix/image-common/master/install-nimbix.sh \
@@ -20,3 +20,4 @@ ENTRYPOINT ["/usr/local/bin/owncloud-start.sh"]
 EXPOSE 443/tcp 22/tcp
 
 COPY ./NAE/AppDef.json /etc/NAE/AppDef.json
+RUN curl --fail -X POST -d @/etc/NAE/AppDef.json https://api.jarvice.com/jarvice/validate
