@@ -116,9 +116,10 @@ set -e
 
 #echo "running scl enable" && source scl_source enable php72 && echo "past enable"
 # User configs
-#[ -z "$OC_USER" ] && OC_USER=nimbix
-[ -z "$OC_USER" ] && OC_USER=apache
-[ -z "$OC_USER_PASS" ] && OC_USER_PASS="$(pwgen -1 32)"
+[ -z "$OC_USER" ] && OC_USER=nimbix
+#[ -z "$OC_USER" ] && OC_USER=apache
+#[ -z "$OC_USER_PASS" ] && OC_USER_PASS="$(pwgen -1 32)"
+[ -z "$OC_USER_PASS" ] && OC_USER_PASS="jarvice"
 
 [ -z "$OC_DB_NAME" ] && OC_DB_NAME=owncloud
 [ -z "$OC_DB_USER" ] && OC_DB_USER=root
@@ -267,7 +268,7 @@ occ_cmd "config:system:set --type=string --value=owncloud log_type"
 occ_cmd "config:system:set --type=int --value=0 loglevel"
 
 # Uncomment if extra debug info is needed
-#occ_cmd config:system:set --type=bool --value=true debug
+occ_cmd config:system:set --type=bool --value=true debug
 
 # Security check
 occ_cmd "config:system:set --type=bool --value=true check_for_working_htaccess"
@@ -312,7 +313,16 @@ occ_cmd "app:enable files_external"
 occ_cmd "files_external:create / local null::null"
 occ_cmd "files_external:config 1 datadir /data"
 occ_cmd "files_external:option 1 enable_sharing true"
+#occ_cmd "files_external:applicable --add-user=admin 1"
 occ_cmd "config:app:set --value 'ftp,dav,owncloud,sftp,amazons3,dropbox,googledrive,swift,smb' files_external user_mounting_backends"
+
+#sudo -u $htuser $ocpath/occ app:enable files_external
+#sudo -u $htuser $ocpath/occ files_external:create Downloads \\OC\\Files\\Storage\\Local null::null
+#sudo -u $htuser $ocpath/occ files_external:config 1 datadir \/home\/$user\/downloads
+#sudo -u $htuser $ocpath/occ files_external:option 1 enable_sharing true
+#sudo -u $htuser $ocpath/occ files_external:applicable --add-user=$user 1
+#verify=$(sudo -u $htuser $ocpath/occ files_external:verify 1)
+#sudo -u $htuser $ocpath/occ files:scan --all
 
 # Check each file or folder at most once per request
 occ_cmd "config:system:set --type=int --value=1 filesystem_check_changes"
@@ -321,31 +331,32 @@ occ_cmd "config:system:set --type=int --value=1 filesystem_check_changes"
 occ_cmd "config:system:set skeletondirectory"
 
 # Configure unix pwauth to allow $OC_USER to login
-##pwauth_pkg=$(ls $(dirname $0)/*-user_pwauth-*.zip)
-#pwauth_pkg=$(ls $(dirname $0)/user_pwauth-*.tar.gz)
-##unzip $pwauth_pkg -d /var/lib/owncloud/apps
-#tar -xf $pwauth_pkg -C $OC_HOMEDIR/apps
-#chown -R apache.apache $OC_HOMEDIR/apps/user_pwauth
+#pwauth_pkg=$(ls $(dirname $0)/*-user_pwauth-*.zip)
+pwauth_pkg=$(ls $(dirname $0)/user_pwauth-*.tar.gz)
+#unzip $pwauth_pkg -d /var/lib/owncloud/apps
+tar -xf $pwauth_pkg -C $OC_HOMEDIR/apps
+chown -R apache.apache $OC_HOMEDIR/apps/user_pwauth
 #sed -i -e 's|apps/user_pwauth|user_pwauth|' \
 #    $OC_HOMEDIR/apps/user_pwauth/appinfo/app.php  # fix require_once bug
-#occ_cmd "app:enable user_pwauth"
-#occ_cmd "config:app:set --value=/usr/bin/pwauth user_pwauth pwauth_path"
+occ_cmd "app:enable user_pwauth"
+occ_cmd "config:app:set --value=/usr/bin/pwauth user_pwauth pwauth_path"
 
 # Modify the "routes" registration..
 ##sed -i -e 's/showLoginForm/tryLogin/g' /usr/share/owncloud/core/routes.php
-#sed -i -e 's/showLoginForm/tryLogin/g' $OC_HOMEDIR/core/routes.php
-## Don't check requesttoken
-#sed -i -e 's/passesCSRFCheck() {/passesCSRFCheck() { return true;/' \
-#    $OC_HOMEDIR/lib/private/AppFramework/Http/Request.php
-##    /usr/share/owncloud/lib/private/AppFramework/Http/Request.php
+sed -i -e 's/showLoginForm/tryLogin/g' $OC_HOMEDIR/core/routes.php
 
-#OC_USER_UID=$(/usr/bin/id -u $OC_USER 2>/dev/null)
-#if [ -n "$OC_USER_UID" ]; then
-#    occ_cmd "config:app:set --value=$OC_USER_UID user_pwauth uid_list"
-#else
-#    export OC_PASS=$OC_USER_PASS
-#    occ_cmd "user:add --password-from-env --group=$OC_USER $OC_USER"
-#fi
+# Don't check requesttoken
+sed -i -e 's/passesCSRFCheck() {/passesCSRFCheck() { return true;/' \
+    $OC_HOMEDIR/lib/private/AppFramework/Http/Request.php
+#    /usr/share/owncloud/lib/private/AppFramework/Http/Request.php
+
+OC_USER_UID=$(/usr/bin/id -u $OC_USER 2>/dev/null)
+if [ -n "$OC_USER_UID" ]; then
+    occ_cmd "config:app:set --value=$OC_USER_UID user_pwauth uid_list"
+else
+    export OC_PASS=$OC_USER_PASS
+    occ_cmd "user:add --password-from-env --group=$OC_USER $OC_USER"
+fi
 
 # Setup Nimbix theme
 #if [ -d $(dirname $0)/nimbix-theme ]; then
@@ -419,5 +430,5 @@ programmatically accessing files via ownCloud APIs.
 EOF
 
 # Hack around smbpasswd issue
-#chmod -x /usr/bin/smbpasswd
+chmod -x /usr/bin/smbpasswd
 

@@ -16,7 +16,7 @@ RUN yum-config-manager --add-repo=http://download.owncloud.org/download/reposito
 
 # OwnCloud install
 RUN yum-config-manager --add-repo=http://download.owncloud.org/download/repositories/production/CentOS_7/ce:stable.repo && \
-    yum install -y owncloud-files pwgen pwauth rsync mod_ssl mod_authnz_external && \
+    yum install -y owncloud-files pwgen pwauth samba-common-tools rsync mod_ssl mod_authnz_external && \
     yum clean all
 
 # Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
