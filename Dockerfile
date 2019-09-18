@@ -19,21 +19,17 @@ RUN yum-config-manager --add-repo=http://download.owncloud.org/download/reposito
     yum install -y owncloud-files pwgen pwauth samba-common-tools rsync mod_ssl mod_authnz_external && \
     yum clean all
 
-# Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
-#ARG SERIAL_NUMBER
-#ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20190816.1500}
-
 # Copy in custom owncloud installer and components, run the installer
 COPY owncloud /tmp/owncloud
 RUN /tmp/owncloud/owncloud-install.sh --with-httpd && \
     mv /tmp/owncloud/owncloud-start.sh /usr/local/bin && \
     rm -rf /tmp/owncloud
 
-#ENTRYPOINT ["/usr/local/bin/owncloud-start.sh"]
+ENTRYPOINT ["/usr/local/bin/owncloud-start.sh"]
 
 EXPOSE 443/tcp 22/tcp
 
 COPY NAE/AppDef.json /etc/NAE/AppDef.json
 RUN curl --fail -X POST -d @/etc/NAE/AppDef.json https://api.jarvice.com/jarvice/validate
 
-#COPY NAE/help.html /etc/NAE/help.html
+COPY NAE/help.html /etc/NAE/help.html

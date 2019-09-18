@@ -56,86 +56,21 @@ done
 
 set -e
 
-# Install EPEL repo and wget so we can get OwnCloud packages..
-#yum -y update; yum clean all; yum -y install epel-release wget php; yum clean all
-#yum -y install wget yum-utils
-
-#OC_VER=9.1.5
-#OC_VER=10.2.1
-#OC_REL=1.2
-#OC_PKGS_URL="https://kojipkgs.fedoraproject.org/packages/owncloud/$OC_VER/$OC_REL/noarch"
-#OC_PKGS_URL="http://download.owncloud.org/download/repositories/production/CentOS_7/noarch/owncloud-files-10.0.10-1.1.noarch.rpm"
-#OC_PKGS_URL="http://download.owncloud.org/download/repositories/production/CentOS_7/noarch"
-#OC_DL_DIR=/tmp/oc
-#echo "Downloading OwnCloud packages from $OC_PKGS_URL..."
-#wget -q -r -np -nd -P $OC_DL_DIR -k $OC_PKGS_URL
-
-#yum-config-manager --add-repo=http://download.owncloud.org/download/repositories/production/CentOS_7/ce:stable.repo
-#yum install -y owncloud-files
-
-#OC_PKGS="owncloud-files"
-#PACKAGES="owncloud-files sudo pwgen pwauth unzip rsync"
-##PACKAGES=""
-#if [ -n "$WITH_HTTPD" ]; then
-##    OC_PKGS+=" owncloud-httpd"
-#    PACKAGES+=" mod_ssl mod_authnz_external"
-#elif [ -n "$WITH_NGINX" ]; then
-##    OC_PKGS+=" owncloud-nginx"
-#    OC_PKGS+=" "
-#fi
-
-#if [ -n "$WITH_MARIADB" ]; then
-#    OC_PKGS+=" owncloud-mysql"
-#    PACKAGES+=" mariadb-server"
-#else
-#    OC_PKGS+=" owncloud-sqlite"
-#fi
-
-# XX From owncloud docs
-#yum install -y -q epel-release http://rpms.remirepo.net/enterprise/remi-release-7.rpm  \
-#  && yum-config-manager --enable remi-php72 \
-#  && yum update -y -q \
-#  && yum install -y -q \
-##    httpd mariadb-server php72 php72-php php72-php-gd \
-#    httpd php72 php72-php php72-php-gd \
-#    php72-php-mbstring php72-php-mysqlnd php72-php-cli \
-##    php72-pecl-apcu redis php72-php-pecl-redis php72-php-common \
-#    php72-pecl-apcu php72-php-common \
-##    php72-php-ldap php72-php-xml php72-php-intl php72-php-zip php72-php-posix mariadb-server mariadb
-#    php72-php-ldap php72-php-xml php72-php-intl php72-php-zip php72-php-posix
-
-#echo "running scl enable" && scl enable php72 bash
-#echo "running scl enable" && source scl_source enable php72 && echo "past enable"
-
-#for PKG in $OC_PKGS; do
-#    PACKAGES+=" $OC_DL_DIR/$PKG-$OC_VER-$OC_REL.noarch.rpm"
-#done
-
-#yum install -y "$PACKAGES"; yum clean all; rm -rf $OC_DL_DIR
-#yum install -y $PACKAGES && yum clean all
-
-#echo "running scl enable" && source scl_source enable php72 && echo "past enable"
 # User configs
 [ -z "$OC_USER" ] && OC_USER=nimbix
-#[ -z "$OC_USER" ] && OC_USER=apache
-#[ -z "$OC_USER_PASS" ] && OC_USER_PASS="$(pwgen -1 32)"
-[ -z "$OC_USER_PASS" ] && OC_USER_PASS="jarvice"
+[ -z "$OC_USER_PASS" ] && OC_USER_PASS="$(pwgen -1 32)"
 
 [ -z "$OC_DB_NAME" ] && OC_DB_NAME=owncloud
 [ -z "$OC_DB_USER" ] && OC_DB_USER=root
 [ -z "$OC_DB_PASS" ] && OC_DB_PASS="$(pwgen -1 32)"
 
 [ -z "$OC_ADMIN_USER" ] && OC_ADMIN_USER=admin
-#[ -z "$OC_ADMIN_PASS" ] && OC_ADMIN_PASS="$(pwgen -1 32)"
-[ -z "$OC_ADMIN_PASS" ] && OC_ADMIN_PASS="admin"
+[ -z "$OC_ADMIN_PASS" ] && OC_ADMIN_PASS="$(pwgen -1 32)"
+
 OC_HOMEDIR=/var/www/html/owncloud
 
 if [ -n "$WITH_HTTPD" ]; then
     echo "Configuring for Apache httpd..."
-
-    # try running as apache user
-#    sed -i -e "s/^User apache/User $OC_USER/" /etc/httpd/conf/httpd.conf
-#    sed -i -e "s/^Group apache/Group $OC_USER/" /etc/httpd/conf/httpd.conf
 
     # Use jarvice cert for SSL
     sed -i -e 's/^SSLCertificateKeyFile/#SSLCertificateKeyFile/' \
@@ -143,57 +78,6 @@ if [ -n "$WITH_HTTPD" ]; then
     sed -i -e \
         's|^SSLCertificateFile.*|SSLCertificateFile /etc/JARVICE/cert.pem|' \
         /etc/httpd/conf.d/ssl.conf
-
-    # Override default owncloud httpd config...
-#    cat <<EOF | sudo tee -a /etc/httpd/conf.d/z-owncloud.conf >/dev/null
-#<Directory /usr/share/owncloud/>
-#    Include conf.d/owncloud-auth-any.inc
-#    Include conf.d/owncloud-options.inc
-#</Directory>
-#
-#<Directory /var/lib/owncloud/apps/>
-#    Include conf.d/owncloud-auth-any.inc
-#    Include conf.d/owncloud-options.inc
-#</Directory>
-#
-#<Directory /var/lib/owncloud/assets/>
-#    Include conf.d/owncloud-auth-any.inc
-#    Include conf.d/owncloud-options.inc
-#</Directory>
-#
-#<IfModule reqtimeout_module>
-#    RequestReadTimeout header=0
-#    RequestReadTimeout body=0
-#</IfModule>
-#
-##<Location "/owncloud">
-##    # Require SSL connection for password protection.
-##    SSLRequireSSL
-##
-##    AuthType Basic
-##    AuthName "Nimbix File Manager"
-##    AuthBasicProvider external
-##    AuthExternal pwauth
-##    Require user $OC_USER
-##</Location>
-#EOF
-#    cat <<EOF | sudo tee -a /etc/httpd/conf.d/owncloud-options.inc >/dev/null
-#
-#<IfModule mod_php5.c>
-#    php_value upload_max_filesize 100G
-#    php_value post_max_size 0
-#    php_value max_input_time 0
-#    php_value max_execution_time 0
-#    php_value memory_limit 1G
-#    php_value mbstring.func_overload 0
-#    php_value always_populate_raw_post_data -1
-#    php_value default_charset 'UTF-8'
-#    php_value output_buffering off
-#    <IfModule mod_env.c>
-#        SetEnv htaccessWorking true
-#    </IfModule>
-#</IfModule>
-#EOF
 
 elif [ -n "$WITH_NGINX" ]; then
     echo "Configuring for nginx..."
@@ -208,7 +92,6 @@ elif [ -n "$WITH_NGINX" ]; then
 fi
 
 occ_db_type=sqlite
-#occ_db_pass="$(pwgen -1 32)"
 if [ -n "$WITH_MARIADB" ]; then
     echo "Configuring for mariadb/mysql..."
 
@@ -221,11 +104,9 @@ fi
 localedef -i en_US -f UTF-8 en_US.UTF-8
 
 # Now do ownCloud setup and config
-#echo "running scl enable" && source scl_source enable php72 && echo "past enable"
-#occ="sudo -E -u apache /usr/bin/php /usr/share/owncloud/occ -vvv"
 #occ="sudo -u apache bash -c \"source scl_source enable php72 && php /var/www/html/owncloud/occ -vvv\""
 occ_cmd() {
-    sudo -u apache bash -c "source scl_source enable php72 && php /var/www/html/owncloud/occ $*"
+    sudo -u apache bash -c "source scl_source enable php72 && php $OC_HOMEDIR/occ $*"
 }
 
 echo "Chown ownCloud directory... "
@@ -233,15 +114,6 @@ chown -R apache:apache $OC_HOMEDIR
 
 # Initialize ownCloud
 echo "Configuring Owncloud initial maintenance install"
-#maintenance:install --database=sqlite --database-name=owncloud --database-user=root --database-pass=owncloud --admin-pass=admin
-#occ_cmd maintenance:install \
-#    --database="$occ_db_type" --database-name="$OC_DB_NAME" \
-#    --database-user="$OC_DB_USER" --database-pass="$OC_DB_PASS" \
-#    --admin-user="$OC_ADMIN_USER" --admin-pass="$OC_ADMIN_PASS" \
-#    --data-dir=/var/www/html/owncloud/data
-
-#INSTARGS="source scl_source enable php72 && php /var/www/html/owncloud/occ "
-#INSTARGS+="maintenance:install "
 INSTARGS="maintenance:install "
 INSTARGS+="--database=$occ_db_type "
 INSTARGS+="--database-name=$OC_DB_NAME "
@@ -250,13 +122,9 @@ INSTARGS+="--database-pass=$OC_DB_PASS "
 INSTARGS+="--admin-user=$OC_ADMIN_USER "
 INSTARGS+="--admin-pass=$OC_ADMIN_PASS "
 INSTARGS+="--data-dir=$OC_HOMEDIR/data -vvv"
-
-echo $INSTARGS
-
-#sudo -u apache bash -c "$INSTARGS"
-#sudo -u apache bash -c "source scl_source enable php72 && php /var/www/html/owncloud/occ maintenance:install --database=$occ_db_type --database-name=$OC_DB_NAME --database-user=$OC_DB_USER --database-pass=$OC_DB_PASS --admin-user=$OC_ADMIN_USER --admin-pass=$OC_ADMIN_PASS -vvv"
-
 occ_cmd "$INSTARGS"
+
+#sudo -u apache bash -c "source scl_source enable php72 && php /var/www/html/owncloud/occ maintenance:install --database=$occ_db_type --database-name=$OC_DB_NAME --database-user=$OC_DB_USER --database-pass=$OC_DB_PASS --admin-user=$OC_ADMIN_USER --admin-pass=$OC_ADMIN_PASS -vvv"
 
 # Log file is $data-dir/owncloud.log
 echo "Configuring OwnCloud logging"
@@ -268,13 +136,13 @@ occ_cmd "config:system:set --type=string --value=owncloud log_type"
 occ_cmd "config:system:set --type=int --value=0 loglevel"
 
 # Uncomment if extra debug info is needed
-occ_cmd config:system:set --type=bool --value=true debug
+#occ_cmd config:system:set --type=bool --value=true debug
 
 # Security check
 occ_cmd "config:system:set --type=bool --value=true check_for_working_htaccess"
 
 # Don't allow unencrypted usage
-#occ_cmd config:system:set --type=bool --value=true force_ssl
+occ_cmd config:system:set --type=bool --value=true force_ssl
 
 # Allow connections from anywhere
 #occ_cmd config:system:delete trusted_domains 0
@@ -291,22 +159,22 @@ occ_cmd "config:system:set --type=bool --value=true check_for_working_htaccess"
 #    /usr/share/owncloud/settings/personal.php
 
 # Disable unnecessary settings that could confuse users
-#names="updatechecker appstoreenabled knowledgebaseenabled enable_avatars"
-#names+=" allow_user_to_change_display_name"
-#for name in $names; do
-#    occ_cmd "config:system:set --type=bool --value=false $name"
-#done
+names="updatechecker appstoreenabled knowledgebaseenabled enable_avatars"
+names+=" allow_user_to_change_display_name"
+for name in $names; do
+    occ_cmd "config:system:set --type=bool --value=false $name"
+done
 
 # Remove unnecessary apps that could confuse users
-#apps="files_sharing files_versions files_trashbin activity gallery systemtags"
-#apps+=" notifications templateeditor firstrunwizard"
-##apps+=" federatedfilesharing"  # federatedfilesharing can't be disabled?
-#for app in $apps; do
-#    occ_cmd "app:disable $app"
-#done
+apps="files_sharing files_versions files_trashbin activity gallery systemtags"
+apps+=" notifications templateeditor firstrunwizard"
+#apps+=" federatedfilesharing"  # federatedfilesharing can't be disabled?
+for app in $apps; do
+    occ_cmd "app:disable $app"
+done
 
 # ownCloud app store is disabled
-#occ_cmd "config:system:set --type=bool --value=false apps_paths 1 writable"
+occ_cmd "config:system:set --type=bool --value=false apps_paths 1 writable"
 
 # Configure external storage
 occ_cmd "app:enable files_external"
@@ -316,14 +184,6 @@ occ_cmd "files_external:option 1 enable_sharing true"
 #occ_cmd "files_external:applicable --add-user=admin 1"
 occ_cmd "config:app:set --value 'ftp,dav,owncloud,sftp,amazons3,dropbox,googledrive,swift,smb' files_external user_mounting_backends"
 
-#sudo -u $htuser $ocpath/occ app:enable files_external
-#sudo -u $htuser $ocpath/occ files_external:create Downloads \\OC\\Files\\Storage\\Local null::null
-#sudo -u $htuser $ocpath/occ files_external:config 1 datadir \/home\/$user\/downloads
-#sudo -u $htuser $ocpath/occ files_external:option 1 enable_sharing true
-#sudo -u $htuser $ocpath/occ files_external:applicable --add-user=$user 1
-#verify=$(sudo -u $htuser $ocpath/occ files_external:verify 1)
-#sudo -u $htuser $ocpath/occ files:scan --all
-
 # Check each file or folder at most once per request
 occ_cmd "config:system:set --type=int --value=1 filesystem_check_changes"
 
@@ -331,10 +191,8 @@ occ_cmd "config:system:set --type=int --value=1 filesystem_check_changes"
 occ_cmd "config:system:set skeletondirectory"
 
 # Configure unix pwauth to allow $OC_USER to login
-#pwauth_pkg=$(ls $(dirname $0)/*-user_pwauth-*.zip)
 pwauth_pkg=$(ls $(dirname $0)/user_pwauth-*.tar.gz)
-#unzip $pwauth_pkg -d /var/lib/owncloud/apps
-tar -xf $pwauth_pkg -C $OC_HOMEDIR/apps
+tar -xf "$pwauth_pkg" -C $OC_HOMEDIR/apps
 chown -R apache.apache $OC_HOMEDIR/apps/user_pwauth
 #sed -i -e 's|apps/user_pwauth|user_pwauth|' \
 #    $OC_HOMEDIR/apps/user_pwauth/appinfo/app.php  # fix require_once bug
@@ -348,7 +206,6 @@ sed -i -e 's/showLoginForm/tryLogin/g' $OC_HOMEDIR/core/routes.php
 # Don't check requesttoken
 sed -i -e 's/passesCSRFCheck() {/passesCSRFCheck() { return true;/' \
     $OC_HOMEDIR/lib/private/AppFramework/Http/Request.php
-#    /usr/share/owncloud/lib/private/AppFramework/Http/Request.php
 
 OC_USER_UID=$(/usr/bin/id -u $OC_USER 2>/dev/null)
 if [ -n "$OC_USER_UID" ]; then
@@ -358,76 +215,76 @@ else
     occ_cmd "user:add --password-from-env --group=$OC_USER $OC_USER"
 fi
 
-# Setup Nimbix theme
+# Setup Nimbix theme, now an OC app
 #if [ -d $(dirname $0)/nimbix-theme ]; then
 #    cp -r $(dirname $0)/nimbix-theme /usr/share/owncloud/themes
 #    occ_cmd config:system:set --type=string --value=nimbix-theme theme
 #fi
 
 # Done configuring, don't allow changes from the web interface
-#occ_cmd "config:system:set --type=bool --value=true config_is_read_only"
+occ_cmd "config:system:set --type=bool --value=true config_is_read_only"
 
 # Make sure permissions are adjusted for $OC_USER
 #chown -R $OC_USER.$OC_USER $OC_HOMEDIR /var/lib/php/session
 #chown $OC_USER.$OC_USER /etc/owncloud /etc/owncloud/config.php
 #chgrp $OC_USER /usr/bin/pwauth
 
-OC_URL="https://%PUBLICADDR%/owncloud/index.php/login?user=nimbix&password=%NIMBIXPASSWD%"
-OC_CLIENTS="https://owncloud.org/sync-clients/"
-mkdir -p /etc/NAE
-cat <<EOF | sudo tee /etc/NAE/url.txt >/dev/null
-$OC_URL
-EOF
-
-cat <<EOF | sudo tee /etc/NAE/help.html >/dev/null
-<h1><a href="$OC_URL" target="%JOBNAME%">Click Here to Connect</a></h1>
-<p>
-Alternatively, you may connect securely with an
-<a href="$OC_CLIENTS" target="_owncloud_download"><b>ownCloud desktop or mobile client</b></a>:
-</p>
-<p>
-<table>
-<tr>
-<td align="right">ownCloud Server:</td>
-<td><b>https://%PUBLICADDR%</b><br></td>
-</tr>
-<tr>
-<td align="right">User:</td>
-<td><b>nimbix</b><br></td>
-</tr>
-<tr>
-<td align="right">Password:</td>
-<td><b>%NIMBIXPASSWD%</b><br></td>
-</tr>
-</table>
-</p>
-<p>
-Please note that the password is case sensitive and should not contain any
-leading or trailing spaces when entered.  It is recommended that you copy and
-paste it from above directly into the ownCloud client password prompt to
-ensure accuracy.
-</p>
-<p>
-<a href="$OC_CLIENTS" target="_owncloud_download"><b>Click here to download an ownCloud desktop or mobile client</b></a><br>
-</p>
-
-<h2>Alternative Connection Methods</h2>
-<p>
-You may also upload and download files from the command line with a tool
-like curl:
-<pre style="overflow-x:scroll;">
-curl -u nimbix:%NIMBIXPASSWD% -k --upload-file "source_file" "https://%PUBLICADDR%/owncloud/remote.php/webdav/target_file"<br>
-</pre>
-<pre style="overflow-x:scroll;">
-curl -u nimbix:%NIMBIXPASSWD% -k --output "target_file" "https://%PUBLICADDR%/owncloud/remote.php/webdav/source_file"
-</pre>
-</p>
-
-<p>
-A <a href="https://github.com/owncloud/pyocclient" target="_owncloud_download"><b>python client library for ownCloud</b></a> is also available for
-programmatically accessing files via ownCloud APIs.
-</p>
-EOF
+#OC_URL="https://%PUBLICADDR%/owncloud/index.php/login?user=nimbix&password=%NIMBIXPASSWD%"
+#OC_CLIENTS="https://owncloud.org/sync-clients/"
+#mkdir -p /etc/NAE
+#cat <<EOF | sudo tee /etc/NAE/url.txt >/dev/null
+#$OC_URL
+#EOF
+#
+#cat <<EOF | sudo tee /etc/NAE/help.html >/dev/null
+#<h1><a href="$OC_URL" target="%JOBNAME%">Click Here to Connect</a></h1>
+#<p>
+#Alternatively, you may connect securely with an
+#<a href="$OC_CLIENTS" target="_owncloud_download"><b>ownCloud desktop or mobile client</b></a>:
+#</p>
+#<p>
+#<table>
+#<tr>
+#<td align="right">ownCloud Server:</td>
+#<td><b>https://%PUBLICADDR%</b><br></td>
+#</tr>
+#<tr>
+#<td align="right">User:</td>
+#<td><b>nimbix</b><br></td>
+#</tr>
+#<tr>
+#<td align="right">Password:</td>
+#<td><b>%NIMBIXPASSWD%</b><br></td>
+#</tr>
+#</table>
+#</p>
+#<p>
+#Please note that the password is case sensitive and should not contain any
+#leading or trailing spaces when entered.  It is recommended that you copy and
+#paste it from above directly into the ownCloud client password prompt to
+#ensure accuracy.
+#</p>
+#<p>
+#<a href="$OC_CLIENTS" target="_owncloud_download"><b>Click here to download an ownCloud desktop or mobile client</b></a><br>
+#</p>
+#
+#<h2>Alternative Connection Methods</h2>
+#<p>
+#You may also upload and download files from the command line with a tool
+#like curl:
+#<pre style="overflow-x:scroll;">
+#curl -u nimbix:%NIMBIXPASSWD% -k --upload-file "source_file" "https://%PUBLICADDR%/owncloud/remote.php/webdav/target_file"<br>
+#</pre>
+#<pre style="overflow-x:scroll;">
+#curl -u nimbix:%NIMBIXPASSWD% -k --output "target_file" "https://%PUBLICADDR%/owncloud/remote.php/webdav/source_file"
+#</pre>
+#</p>
+#
+#<p>
+#A <a href="https://github.com/owncloud/pyocclient" target="_owncloud_download"><b>python client library for ownCloud</b></a> is also available for
+#programmatically accessing files via ownCloud APIs.
+#</p>
+#EOF
 
 # Hack around smbpasswd issue
 chmod -x /usr/bin/smbpasswd
