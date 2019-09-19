@@ -154,7 +154,7 @@ occ_cmd "config:system:delete trusted_domains"
 # Deleting trusted_domains config doesn't work due to bug in isTrustedDomain
 #sed -i -e 's/return in_array.*/return true;/' \
 #    /usr/share/owncloud/lib/private/Security/TrustedDomainHelper.php
-sed -i -e 's/return in_array.*/return true;/' \
+sed -i -e 's/return \\in_array.*/return true;/' \
     $OC_HOMEDIR/lib/private/Security/TrustedDomainHelper.php
 
 # Don't allow the user to change name and password
