@@ -124,8 +124,6 @@ INSTARGS+="--admin-pass=$OC_ADMIN_PASS "
 INSTARGS+="--data-dir=$OC_HOMEDIR/data -vvv"
 occ_cmd "$INSTARGS"
 
-#sudo -u apache bash -c "source scl_source enable php72 && php /var/www/html/owncloud/occ maintenance:install --database=$occ_db_type --database-name=$OC_DB_NAME --database-user=$OC_DB_USER --database-pass=$OC_DB_PASS --admin-user=$OC_ADMIN_USER --admin-pass=$OC_ADMIN_PASS -vvv"
-
 # Log file is $data-dir/owncloud.log
 echo "Configuring OwnCloud logging"
 occ_cmd "config:system:set --type=string --value=owncloud log_type"
@@ -200,7 +198,6 @@ occ_cmd "app:enable user_pwauth"
 occ_cmd "config:app:set --value=/usr/bin/pwauth user_pwauth pwauth_path"
 
 # Modify the "routes" registration..
-##sed -i -e 's/showLoginForm/tryLogin/g' /usr/share/owncloud/core/routes.php
 sed -i -e 's/showLoginForm/tryLogin/g' $OC_HOMEDIR/core/routes.php
 
 # Don't check requesttoken

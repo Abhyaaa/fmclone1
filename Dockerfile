@@ -22,8 +22,9 @@ RUN yum-config-manager --add-repo=http://download.owncloud.org/download/reposito
 # Copy in custom owncloud installer and components, run the installer
 COPY owncloud /tmp/owncloud
 RUN /tmp/owncloud/owncloud-install.sh --with-httpd && \
-    mv /tmp/owncloud/owncloud-start.sh /usr/local/bin && \
     rm -rf /tmp/owncloud
+
+COPY owncloud-start.sh /usr/local/bin/owncloud-start.sh
 
 ENTRYPOINT ["/usr/local/bin/owncloud-start.sh"]
 
