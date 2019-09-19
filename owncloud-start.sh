@@ -17,6 +17,7 @@ fi
 
 if [ -x /usr/sbin/httpd ]; then
     sudo mkdir -p /run/httpd
+    sudo chmod 01777 /run/httpd
     sudo chmod 750 /run/httpd
     sudo /usr/sbin/httpd -D FOREGROUND
 fi

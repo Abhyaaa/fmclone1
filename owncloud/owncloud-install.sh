@@ -143,17 +143,10 @@ occ_cmd "config:system:set --type=bool --value=true check_for_working_htaccess"
 occ_cmd config:system:set --type=bool --value=true force_ssl
 
 # Allow connections from anywhere
-occ_cmd "config:system:delete trusted_domains 0"
-occ_cmd "config:system:delete trusted_domains"
-
-#You are accessing the server from an untrusted domain.
-#Please contact your administrator.
-#If you are an administrator of this instance, configure the "trusted_domains" setting in config/config.php.
-# An example configuration is provided in config/config.sample.php or at the documentation.
+#occ_cmd "config:system:delete trusted_domains 0"
+#occ_cmd "config:system:delete trusted_domains"
 
 # Deleting trusted_domains config doesn't work due to bug in isTrustedDomain
-#sed -i -e 's/return in_array.*/return true;/' \
-#    /usr/share/owncloud/lib/private/Security/TrustedDomainHelper.php
 sed -i -e 's/return \\in_array.*/return true;/' \
     $OC_HOMEDIR/lib/private/Security/TrustedDomainHelper.php
 
@@ -234,62 +227,10 @@ occ_cmd "config:system:set --type=bool --value=true config_is_read_only"
 #chgrp $OC_USER /usr/bin/pwauth
 
 OC_URL="https://%PUBLICADDR%/owncloud/index.php/login?user=nimbix&password=%NIMBIXPASSWD%"
-#OC_CLIENTS="https://owncloud.org/sync-clients/"
 mkdir -p /etc/NAE
 cat <<EOF | sudo tee /etc/NAE/url.txt >/dev/null
 $OC_URL
 EOF
 
-#cat <<EOF | sudo tee /etc/NAE/help.html >/dev/null
-#<h1><a href="$OC_URL" target="%JOBNAME%">Click Here to Connect</a></h1>
-#<p>
-#Alternatively, you may connect securely with an
-#<a href="$OC_CLIENTS" target="_owncloud_download"><b>ownCloud desktop or mobile client</b></a>:
-#</p>
-#<p>
-#<table>
-#<tr>
-#<td align="right">ownCloud Server:</td>
-#<td><b>https://%PUBLICADDR%</b><br></td>
-#</tr>
-#<tr>
-#<td align="right">User:</td>
-#<td><b>nimbix</b><br></td>
-#</tr>
-#<tr>
-#<td align="right">Password:</td>
-#<td><b>%NIMBIXPASSWD%</b><br></td>
-#</tr>
-#</table>
-#</p>
-#<p>
-#Please note that the password is case sensitive and should not contain any
-#leading or trailing spaces when entered.  It is recommended that you copy and
-#paste it from above directly into the ownCloud client password prompt to
-#ensure accuracy.
-#</p>
-#<p>
-#<a href="$OC_CLIENTS" target="_owncloud_download"><b>Click here to download an ownCloud desktop or mobile client</b></a><br>
-#</p>
-#
-#<h2>Alternative Connection Methods</h2>
-#<p>
-#You may also upload and download files from the command line with a tool
-#like curl:
-#<pre style="overflow-x:scroll;">
-#curl -u nimbix:%NIMBIXPASSWD% -k --upload-file "source_file" "https://%PUBLICADDR%/owncloud/remote.php/webdav/target_file"<br>
-#</pre>
-#<pre style="overflow-x:scroll;">
-#curl -u nimbix:%NIMBIXPASSWD% -k --output "target_file" "https://%PUBLICADDR%/owncloud/remote.php/webdav/source_file"
-#</pre>
-#</p>
-#
-#<p>
-#A <a href="https://github.com/owncloud/pyocclient" target="_owncloud_download"><b>python client library for ownCloud</b></a> is also available for
-#programmatically accessing files via ownCloud APIs.
-#</p>
-#EOF
-
 # Hack around smbpasswd issue
 chmod -x /usr/bin/smbpasswd
-
