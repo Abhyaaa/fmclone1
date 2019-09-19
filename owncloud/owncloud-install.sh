@@ -226,7 +226,8 @@ occ_cmd "config:system:set --type=bool --value=true config_is_read_only"
 #chown $OC_USER.$OC_USER /etc/owncloud /etc/owncloud/config.php
 #chgrp $OC_USER /usr/bin/pwauth
 
-OC_URL="https://%PUBLICADDR%/owncloud/index.php/login?user=nimbix&password=%NIMBIXPASSWD%"
+OC_URL="https://%PUBLICADDR%/owncloud/index.php/login?user=%NIMBIXUSER%&password=%NIMBIXPASSWD%"
+OC_CLIENTS="https://owncloud.org/sync-clients/"
 mkdir -p /etc/NAE
 cat <<EOF | sudo tee /etc/NAE/url.txt >/dev/null
 $OC_URL

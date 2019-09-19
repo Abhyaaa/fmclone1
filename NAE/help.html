@@ -1,4 +1,4 @@
-<h1><a href="https://%PUBLICADDR%/owncloud/index.php/login?user=nimbix&password=%NIMBIXPASSWD%" target="%JOBNAME%">Click Here to Connect</a></h1>
+<h1><a href="https://%PUBLICADDR%/owncloud/index.php/login?user=%NIMBIXUSER%&password=%NIMBIXPASSWD%" target="%JOBNAME%">Click Here to Connect</a></h1>
 <p>
     Alternatively, you may connect securely with an
     <a href="https://owncloud.org/download/#owncloud-desktop-client" target="_owncloud_download"><b>ownCloud desktop or
@@ -12,7 +12,7 @@
     </tr>
     <tr>
         <td align="right">User:</td>
-        <td><b>nimbix</b><br></td>
+        <td><b>%NIMBIXUSER%</b><br></td>
     </tr>
     <tr>
         <td align="right">Password:</td>
@@ -36,10 +36,10 @@
     You may also upload and download files from the command line with a tool
     like curl:
 <pre style="overflow-x:scroll;">
-curl -u nimbix:%NIMBIXPASSWD% -k --upload-file "source_file" "https://%PUBLICADDR%/owncloud/remote.php/webdav/target_file"<br>
+curl -u %NIMBIXUSER%:%NIMBIXPASSWD% -k --upload-file "source_file" "https://%PUBLICADDR%/owncloud/remote.php/webdav/target_file"<br>
 </pre>
 <pre style="overflow-x:scroll;">
-curl -u nimbix:%NIMBIXPASSWD% -k --output "target_file" "https://%PUBLICADDR%/owncloud/remote.php/webdav/source_file"
+curl -u %NIMBIXUSER%:%NIMBIXPASSWD% -k --output "target_file" "https://%PUBLICADDR%/owncloud/remote.php/webdav/source_file"
 </pre>
 </p>
 
