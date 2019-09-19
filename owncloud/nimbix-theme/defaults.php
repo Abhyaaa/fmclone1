@@ -73,7 +73,7 @@ class OC_Theme {
 	 * @return string title
 	 */
 	public function getTitle() {
-		return 'Nimbix File Manager';
+		return 'JARVICE File Manager';
 	}
 
 	/**
@@ -81,7 +81,7 @@ class OC_Theme {
 	 * @return string title
 	 */
 	public function getName() {
-		return 'Nimbix File Manager';
+		return 'JARVICE File Manager';
 	}
 
 	/**
@@ -89,7 +89,7 @@ class OC_Theme {
 	 * @return string title
 	 */
 	public function getHTMLName() {
-		return 'Nimbix File Manager';
+		return 'JARVICE File Manager';
 	}
 
 	/**
