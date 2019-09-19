@@ -143,8 +143,13 @@ occ_cmd "config:system:set --type=bool --value=true check_for_working_htaccess"
 occ_cmd config:system:set --type=bool --value=true force_ssl
 
 # Allow connections from anywhere
-#occ_cmd config:system:delete trusted_domains 0
-#occ_cmd config:system:delete trusted_domains
+occ_cmd "config:system:delete trusted_domains 0"
+occ_cmd "config:system:delete trusted_domains"
+
+#You are accessing the server from an untrusted domain.
+#Please contact your administrator.
+#If you are an administrator of this instance, configure the "trusted_domains" setting in config/config.php.
+# An example configuration is provided in config/config.sample.php or at the documentation.
 
 # Deleting trusted_domains config doesn't work due to bug in isTrustedDomain
 #sed -i -e 's/return in_array.*/return true;/' \
@@ -164,8 +169,8 @@ for name in $names; do
 done
 
 # Remove unnecessary apps that could confuse users
-apps="files_sharing files_versions files_trashbin activity gallery systemtags"
-apps+=" notifications templateeditor firstrunwizard"
+apps="files_sharing files_versions files_trashbin systemtags"
+apps+=" notifications firstrunwizard"
 #apps+=" federatedfilesharing"  # federatedfilesharing can't be disabled?
 for app in $apps; do
     occ_cmd "app:disable $app"
@@ -226,13 +231,13 @@ occ_cmd "config:system:set --type=bool --value=true config_is_read_only"
 #chown $OC_USER.$OC_USER /etc/owncloud /etc/owncloud/config.php
 #chgrp $OC_USER /usr/bin/pwauth
 
-#OC_URL="https://%PUBLICADDR%/owncloud/index.php/login?user=nimbix&password=%NIMBIXPASSWD%"
+OC_URL="https://%PUBLICADDR%/owncloud/index.php/login?user=nimbix&password=%NIMBIXPASSWD%"
 #OC_CLIENTS="https://owncloud.org/sync-clients/"
-#mkdir -p /etc/NAE
-#cat <<EOF | sudo tee /etc/NAE/url.txt >/dev/null
-#$OC_URL
-#EOF
-#
+mkdir -p /etc/NAE
+cat <<EOF | sudo tee /etc/NAE/url.txt >/dev/null
+$OC_URL
+EOF
+
 #cat <<EOF | sudo tee /etc/NAE/help.html >/dev/null
 #<h1><a href="$OC_URL" target="%JOBNAME%">Click Here to Connect</a></h1>
 #<p>
