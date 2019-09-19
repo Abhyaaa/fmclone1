@@ -155,7 +155,7 @@ occ_cmd "config:system:delete trusted_domains"
 #sed -i -e 's/return in_array.*/return true;/' \
 #    /usr/share/owncloud/lib/private/Security/TrustedDomainHelper.php
 sed -i -e 's/return in_array.*/return true;/' \
-    /usr/share/owncloud/lib/private/Security/TrustedDomainHelper.php
+    $OC_HOMEDIR/lib/private/Security/TrustedDomainHelper.php
 
 # Don't allow the user to change name and password
 #sed -i -e 's/.*displayNameChangeSupported.*//' \
