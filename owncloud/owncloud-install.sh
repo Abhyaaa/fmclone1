@@ -72,7 +72,7 @@ OC_HOMEDIR=/var/www/html/owncloud
 if [ -n "$WITH_HTTPD" ]; then
     echo "Configuring for Apache httpd..."
 
-    # Use jarvice cert for SSL
+    # Use JARVICE cert for SSL
     sed -i -e 's/^SSLCertificateKeyFile/#SSLCertificateKeyFile/' \
         /etc/httpd/conf.d/ssl.conf
     sed -i -e \
@@ -104,7 +104,7 @@ fi
 localedef -i en_US -f UTF-8 en_US.UTF-8
 
 # Now do ownCloud setup and config
-#occ="sudo -u apache bash -c \"source scl_source enable php72 && php /var/www/html/owncloud/occ -vvv\""
+#occ="sudo -u apache bash -c "source scl_source enable php72 && php /var/www/html/owncloud/occ -vvv\""
 occ_cmd() {
     sudo -u apache bash -c "source scl_source enable php72 && php $OC_HOMEDIR/occ $*"
 }
@@ -174,13 +174,50 @@ done
 # ownCloud app store is disabled
 occ_cmd "config:system:set --type=bool --value=false apps_paths 1 writable"
 
+#  'files_external_allow_create_new_local' => false,
+sed -i -e "/'updatechecker' => false,/ a 'files_external_allow_create_new_local' => true," \
+    $OC_HOMEDIR/config/config.php
+#  if ($config->getAppValue('core', 'enable_external_storage', 'no') === 'yes') {
+
+
+#[root@72d823125a06 owncloud]# find . -type f -exec grep -H files_external_allow_create_new_local {} \;
+#./config/config.sample.php:'files_external_allow_create_new_local' => false,
+#./config/config.php:  'files_external_allow_create_new_local' => true,
+#./apps/files_external/lib/Controller/UserStoragesController.php:		$canCreateNewLocalStorage = \OC::$server->getConfig()->getSystemValue('files_external_allow_create_new_local', false);
+#./apps/files_external/lib/Controller/GlobalStoragesController.php:		$canCreateNewLocalStorage = \OC::$server->getConfig()->getSystemValue('files_external_allow_create_new_local', false);
+#./apps/files_external/templates/settings.php:							$canCreateNewLocalStorage = \OC::$server->getConfig()->getSystemValue('files_external_allow_create_new_local', false);
+#./apps/files_external/templates/settings.php:						} // if the "files_external_allow_create_new_local" config param isn't set to to true?>
+
+# templates/settings.php
+#$canCreateNewLocalStorage = \OC::$server->getConfig()->getSystemValue('files_external_allow_create_new_local', true);
+
+# lib/Controller/GlobalStoragesController.php
+#sed -i -e 's/$canCreateNewLocalStorage.*/$canCreateNewLocalStorage = true/' \
+#    $OC_HOMEDIR/apps/files_external/lib/Controller/GlobalStoragesController.php
+#sed -i -e 's/$canCreateNewLocalStorage.*/$canCreateNewLocalStorage = true/' \
+#    $OC_HOMEDIR/apps/files_external/lib/Controller/UserStoragesController.php
+#$canCreateNewLocalStorage = \OC::$server->getConfig()->getSystemValue('files_external_allow_create_new_local', false);
+
+
+
 # Configure external storage
 occ_cmd "app:enable files_external"
 occ_cmd "files_external:create / local null::null"
 occ_cmd "files_external:config 1 datadir /data"
 occ_cmd "files_external:option 1 enable_sharing true"
-#occ_cmd "files_external:applicable --add-user=admin 1"
-occ_cmd "config:app:set --value 'ftp,dav,owncloud,sftp,amazons3,dropbox,googledrive,swift,smb' files_external user_mounting_backends"
+#occ_cmd "files_external:applicable --add-user=$OC_USER 1"
+#verify=$(occ_cmd "files_external:verify 1")
+#echo "verify files_external  works: $verify"
+#occ_cmd "files:scan --all"
+occ_cmd "config:app:set --value 'ftp,dav,owncloud,sftp,amazons3,dropbox,googledrive,swift,smb,local' files_external user_mounting_backends"
+
+#sudo -u $htuser $ocpath/occ app:enable files_external
+#sudo -u $htuser $ocpath/occ files_external:create Downloads \\OC\\Files\\Storage\\Local null::null
+#sudo -u $htuser $ocpath/occ files_external:config 1 datadir \/home\/$user\/downloads
+#sudo -u $htuser $ocpath/occ files_external:option 1 enable_sharing true
+#sudo -u $htuser $ocpath/occ files_external:applicable --add-user=$user 1
+#verify=$(sudo -u $htuser $ocpath/occ files_external:verify 1)
+#sudo -u $htuser $ocpath/occ files:scan --all
 
 # Check each file or folder at most once per request
 occ_cmd "config:system:set --type=int --value=1 filesystem_check_changes"
