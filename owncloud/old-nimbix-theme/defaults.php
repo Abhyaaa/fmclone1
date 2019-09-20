@@ -2,7 +2,7 @@
 /**
  * @author Björn Schießle <schiessle@owncloud.com>
  * @author Jan-Christoph Borchardt, http://jancborchardt.net
- * @copyright Copyright (c) 2018, ownCloud GmbH
+ * @copyright Copyright (c) 2015, ownCloud, Inc.
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -89,7 +89,7 @@ class OC_Theme {
 	 * @return string title
 	 */
 	public function getHTMLName() {
-		return '<b>JARVICE</b> File Manager';
+		return 'JARVICE File Manager';
 	}
 
 	/**
@@ -116,41 +116,14 @@ class OC_Theme {
 		return '';
 	}
 
-	public function getPrivacyPolicyUrl() {
-		try {
-			return \OC::$server->getConfig()->getAppValue('core', 'legal.privacy_policy_url', '');
-		} catch (\Exception $e) {
-			return '';
-		}
-	}
-	
-	public function getImprintUrl() {
-		try {
-			return \OC::$server->getConfig()->getAppValue('core', 'legal.imprint_url', '');
-		} catch (\Exception $e) {
-			return '';
-		}
-	}
-
-	public function getL10n() {
-		return \OC::$server->getL10N('core');
-	}
-	
 	/**
 	 * Returns short version of the footer
 	 * @return string short footer
 	 */
 	public function getShortFooter() {
-		$l10n = $this->getL10n();
-		$footer = '© 2018 <a href="'.$this->getBaseUrl().'" target="_blank\">'.$this->getEntity().'</a>'.
+		$footer = '© 2016 <a href="'.$this->getBaseUrl().'" target="_blank\">'.$this->getEntity().'</a>'.
 			'<br/>' . $this->getSlogan();
-		if ($this->getImprintUrl() !== '') {
-			$footer .= '<span class="nowrap"> | <a href="' . $this->getImprintUrl() . '" target="_blank">' . $l10n->t('Imprint') . '</a></span>';
-		}
 
-		if ($this->getPrivacyPolicyUrl() !== '') {
-			$footer .= '<span class="nowrap"> | <a href="'. $this->getPrivacyPolicyUrl() .'" target="_blank">'. $l10n->t('Privacy Policy')	 .'</a></span>';
-		}
 		return $footer;
 	}
 
@@ -159,21 +132,14 @@ class OC_Theme {
 	 * @return string long footer
 	 */
 	public function getLongFooter() {
-		$l10n = $this->getL10n();
-		$footer = '© 2018 <a href="'.$this->getBaseUrl().'" target="_blank\">'.$this->getEntity().'</a>'.
+		$footer = '© 2016 <a href="'.$this->getBaseUrl().'" target="_blank\">'.$this->getEntity().'</a>'.
 			'<br/>' . $this->getSlogan();
-		if ($this->getImprintUrl() !== '') {
-			$footer .= '<span class="nowrap"> | <a href="' . $this->getImprintUrl() . '" target="_blank">' . $l10n->t('Imprint') . '</a></span>';
-		}
 
-		if ($this->getPrivacyPolicyUrl() !== '') {
-			$footer .= '<span class="nowrap"> | <a href="'. $this->getPrivacyPolicyUrl() .'" target="_blank">'. $l10n->t('Privacy Policy') .'</a></span>';
-		}
 		return $footer;
 	}
 
 	public function buildDocLinkToKey($key) {
-		return $this->getDocBaseUrl() . '/server/10.0/go.php?to=' . $key;
+		return $this->getDocBaseUrl() . '/server/8.0/go.php?to=' . $key;
 	}
 
 

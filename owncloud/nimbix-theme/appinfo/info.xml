@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<info>
+	<id>nimbix-theme</id>
+	<name>JARVICE File Manager Theme</name>
+	<description>Nimbix JARVICE File Manager theme</description>
+	<author>Nimbix, Inc.</author>
+	<version>1.0.0</version>
+	<types>
+		<theme/>
+	</types>
+	<dependencies>
+		<owncloud min-version="10.2" max-version="10" />
+	</dependencies>
+	<namespace>Theme</namespace>
+</info>
