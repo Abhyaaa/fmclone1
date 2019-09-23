@@ -26,11 +26,9 @@ RUN /tmp/owncloud/owncloud-install.sh --with-httpd && \
 
 COPY owncloud-start.sh /usr/local/bin/owncloud-start.sh
 
-ENTRYPOINT ["/usr/local/bin/owncloud-start.sh"]
-
-EXPOSE 443/tcp 22/tcp
-
 COPY NAE/AppDef.json /etc/NAE/AppDef.json
 RUN curl --fail -X POST -d @/etc/NAE/AppDef.json https://api.jarvice.com/jarvice/validate
 
 COPY NAE/help.html /etc/NAE/help.html
+
+ENTRYPOINT ["/usr/local/bin/owncloud-start.sh"]

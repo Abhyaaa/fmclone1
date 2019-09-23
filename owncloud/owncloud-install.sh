@@ -220,6 +220,7 @@ fi
 # Setup Nimbix theme, now an OC app
 if [ -d $(dirname $0)/nimbix-theme ]; then
     cp -r $(dirname $0)/nimbix-theme $OC_HOMEDIR/apps
+    chown -R apache:apache $OC_HOMEDIR/apps/nimbix-theme
     occ_cmd app:enable nimbix-theme
 fi
 
