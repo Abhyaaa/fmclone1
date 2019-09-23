@@ -225,8 +225,7 @@ if [ -d $(dirname $0)/nimbix-theme ]; then
 fi
 
 # Done configuring, don't allow changes from the web interface
-#occ_cmd "config:system:set --type=bool --value=true config_is_read_only"
-usermod -a -G apache $OC_USER
+occ_cmd "config:system:set --type=bool --value=true config_is_read_only"
 chmod -R 0770 /var/www/html/owncloud/data
 chmod 777 /var/www/html/owncloud/lib/private/Config.php
 chmod 777 /var/www/html/owncloud/config/config.php
