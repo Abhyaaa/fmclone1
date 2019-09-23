@@ -190,6 +190,12 @@ occ_cmd "config:system:set --type=int --value=1 filesystem_check_changes"
 # Empty skel dir to keep extraneous files out of user dirs when created
 occ_cmd "config:system:set skeletondirectory"
 
+# Enable APCu cache
+cat << EOF > /etc/opt/remi/php72/php.d/20-apcu.ini
+; APCu php extension
+extension=apcu.so
+EOF
+
 # Configure unix pwauth to allow $OC_USER to login
 pwauth_pkg=$(ls $(dirname $0)/user_pwauth-*.tar.gz)
 tar -xf "$pwauth_pkg" -C $OC_HOMEDIR/apps
@@ -217,17 +223,11 @@ fi
 # Setup Nimbix theme, now an OC app
 if [ -d $(dirname $0)/nimbix-theme ]; then
     cp -r $(dirname $0)/nimbix-theme $OC_HOMEDIR/apps
-#    occ_cmd config:system:set --type=string --value=nimbix-theme theme
     occ_cmd app:enable nimbix-theme
 fi
 
 # Done configuring, don't allow changes from the web interface
 occ_cmd "config:system:set --type=bool --value=true config_is_read_only"
-
-# Make sure permissions are adjusted for $OC_USER
-#chown -R $OC_USER.$OC_USER $OC_HOMEDIR /var/lib/php/session
-#chown $OC_USER.$OC_USER /etc/owncloud /etc/owncloud/config.php
-#chgrp $OC_USER /usr/bin/pwauth
 
 OC_URL="https://%PUBLICADDR%/owncloud/index.php/login?user=%NIMBIXUSER%&password=%NIMBIXPASSWD%"
 mkdir -p /etc/NAE

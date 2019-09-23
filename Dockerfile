@@ -11,7 +11,7 @@ RUN yum-config-manager --add-repo=http://download.owncloud.org/download/reposito
     yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm  && \
     yum-config-manager --enable remi-php72 && \
     yum install -y httpd php72 php72-php php72-php-gd php72-php-mbstring \
-        php72-php-mysqlnd php72-php-cli php72-pecl-apcu php72-php-common \
+        php72-php-mysqlnd php72-php-cli php72-php-pecl-apcu php72-php-common \
         php72-php-ldap php72-php-xml php72-php-intl php72-php-zip php72-php-posix
 
 # OwnCloud install
