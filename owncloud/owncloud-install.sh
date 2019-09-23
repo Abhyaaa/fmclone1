@@ -72,6 +72,9 @@ OC_HOMEDIR=/var/www/html/owncloud
 if [ -n "$WITH_HTTPD" ]; then
     echo "Configuring for Apache httpd..."
 
+    sed -i -e "s/^User apache/User $OC_USER/" /etc/httpd/conf/httpd.conf
+    sed -i -e "s/^Group apache/Group $OC_USER/" /etc/httpd/conf/httpd.conf
+
     # Use JARVICE cert for SSL
     sed -i -e 's/^SSLCertificateKeyFile/#SSLCertificateKeyFile/' \
         /etc/httpd/conf.d/ssl.conf
@@ -130,7 +133,7 @@ occ_cmd "config:system:set --type=string --value=owncloud log_type"
 
 # Loglevel to start logging at. Valid values are: 0 = Debug, 1 = Info,
 # 2 = Warning, 3 = Error, and 4 = Fatal. The default value is Warning.
-occ_cmd "config:system:set --type=int --value=2 loglevel"
+occ_cmd "config:system:set --type=int --value=0 loglevel"
 
 # Uncomment if extra debug info is needed
 #occ_cmd config:system:set --type=bool --value=true debug
@@ -190,12 +193,6 @@ occ_cmd "config:system:set --type=int --value=1 filesystem_check_changes"
 # Empty skel dir to keep extraneous files out of user dirs when created
 occ_cmd "config:system:set skeletondirectory"
 
-# Enable APCu cache
-cat << EOF > /etc/opt/remi/php72/php.d/20-apcu.ini
-; APCu php extension
-extension=apcu.so
-EOF
-
 # Configure unix pwauth to allow $OC_USER to login
 pwauth_pkg=$(ls $(dirname $0)/user_pwauth-*.tar.gz)
 tar -xf "$pwauth_pkg" -C $OC_HOMEDIR/apps
@@ -227,7 +224,12 @@ if [ -d $(dirname $0)/nimbix-theme ]; then
 fi
 
 # Done configuring, don't allow changes from the web interface
-occ_cmd "config:system:set --type=bool --value=true config_is_read_only"
+#occ_cmd "config:system:set --type=bool --value=true config_is_read_only"
+usermod -G apache $OC_USER
+chmod -R 0770 /var/www/html/owncloud/data
+chmod 777 /var/www/html/owncloud/lib/private/Config.php
+chmod 777 /var/www/html/owncloud/config/config.php
+chmod 0770  /var/www/html/owncloud/config
 
 OC_URL="https://%PUBLICADDR%/owncloud/index.php/login?user=%NIMBIXUSER%&password=%NIMBIXPASSWD%"
 mkdir -p /etc/NAE
