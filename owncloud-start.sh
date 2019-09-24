@@ -19,6 +19,7 @@ if [ -x /usr/sbin/httpd ]; then
     sudo mkdir -p /run/httpd
     sudo chmod 01777 /run/httpd
     sudo chmod 750 /run/httpd
+    sudo useradd -o -u 505 -g 505 -M nimbix || true
     usermod -a -G apache $USER
     sudo /usr/sbin/httpd -D FOREGROUND
 fi
