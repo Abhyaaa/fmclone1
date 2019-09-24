@@ -15,12 +15,6 @@
     "BLOCK_ARRAY",
     "OBJECT"
   ],
-  "identity": {
-    "username": "nimbix",
-    "group": "nimbix",
-    "uid": 505,
-    "gid": 505
-  },
   "commands": {
     "filemanager": {
       "path": "/usr/bin/sudo",
