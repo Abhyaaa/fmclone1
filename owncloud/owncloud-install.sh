@@ -224,6 +224,9 @@ if [ -d $(dirname $0)/nimbix-theme ]; then
     occ_cmd app:enable nimbix-theme
 fi
 
+# Increase chunk size to speed up large uploads
+occ_cmd config:app:set files max_chunk_size --value 2147483648
+
 # Done configuring, don't allow changes from the web interface
 occ_cmd "config:system:set --type=bool --value=true config_is_read_only"
 chmod -R 0770 /var/www/html/owncloud/data
