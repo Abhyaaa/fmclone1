@@ -203,11 +203,22 @@ occ_cmd "app:enable user_pwauth"
 occ_cmd "config:app:set --value=/usr/bin/pwauth user_pwauth pwauth_path"
 
 # Modify the "routes" registration..
-sed -i -e 's/showLoginForm/tryLogin/g' $OC_HOMEDIR/core/routes.php
+# sed -i -e 's/showLoginForm/tryLogin/g' $OC_HOMEDIR/core/routes.php
 
 # Don't check requesttoken
 sed -i -e 's/passesCSRFCheck() {/passesCSRFCheck() { return true;/' \
     $OC_HOMEDIR/lib/private/AppFramework/Http/Request.php
+
+# Replace LoginController.php to fill in jarvice job password
+mv /tmp/owncloud/LoginController.php \
+    $OC_HOMEDIR/core/Controller/LoginController.php
+
+# Replace Login.php to fill in jarvice job password
+mv /tmp/owncloud/login.php $OC_HOMEDIR/core/templates/login.php
+
+# Add Apache config for jarvice path based ingress
+echo 'AliasMatch ^/(.*)/owncloud(.*) '$OC_HOMEDIR'$2' > \
+    /etc/httpd/conf.d/zz-owncloud.conf
 
 OC_USER_UID=$(/usr/bin/id -u $OC_USER 2>/dev/null)
 if [ -n "$OC_USER_UID" ]; then
