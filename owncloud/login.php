@@ -9,7 +9,7 @@ script('core', [
 ?>
 
 <!--[if IE 8]><style>input[type="checkbox"]{padding:0;}</style><![endif]-->
-<form method="post" name="login">
+<form method="post" name="login" id="myLoginForm">
 	<fieldset>
 	<?php if (!empty($_['redirect_url'])) {
 		print_unescaped('<input type="hidden" name="redirect_url" value="' . \OCP\Util::sanitizeHTML($_['redirect_url']) . '">');
@@ -81,6 +81,11 @@ script('core', [
 		<input type="hidden" name="requesttoken" value="<?php p($_['requesttoken']) ?>">
 	</fieldset>
 </form>
+<?php if ($_['loginPassword'] !== '') { ?>
+    <script>
+        document.getElementById("myLoginForm").submit();
+    </script>
+<?php } ?>
 <?php if (!empty($_['alt_login'])) { ?>
 <form id="alternative-logins">
 	<fieldset>
