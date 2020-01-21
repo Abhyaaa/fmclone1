@@ -41,7 +41,8 @@ echo $ubuntu | curl -X POST -d @- "$JARVICE_API/jarvice/submit" | jq .number''',
     }
     stage('Job Connect') {
         steps {
-            retjson = sh (script: '''#!/bin/bash
+            script {
+                retjson = sh (script: '''#!/bin/bash
 while true; do 
   test=$(curl "${JARVICE_API}/jarvice/status?username=${JARVICE_APIKEY_USR}&apikey=${JARVICE_APIKEY_PSW}&number=${JOB_NUMBER}" | jq -r .[].job_status)
   if [[ "PROCESSING STARTING" == "${test}" ]]; then 
@@ -52,7 +53,8 @@ done
 connect=$(curl "${JARVICE_API}/jarvice/connect?username=${JARVICE_APIKEY_USR}&apikey=${JARVICE_APIKEY_PSW}&number=${JOB_NUMBER}");
 echo ${connect}
 ''', returnStdout: true).trim()
-            env.JOB_CONNECT = retjson
+                env.JOB_CONNECT = retjson
+            }
         }
     }
     stage('Job File Test') {
