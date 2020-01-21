@@ -1,0 +1,94 @@
+pipeline {
+  agent any
+  stages {
+    stage('Live') {
+      steps {
+        sh 'curl "${JARVICE_API}/jarvice/live"'
+      }
+    }
+    stage('Submit') {
+        steps {
+            script {
+                retjson = sh (script: '''ubuntu=$(cat << EOF
+{
+"app": "jarvice-filemanager",
+"staging": false,
+"checkedout": false,
+"application": {
+"command": "Server",
+"geometry": "1695x1120"
+},
+"machine": {
+"type": "n0",
+"nodes": 1
+},
+"vault": {
+"name": "ephemeral",
+"readonly": false,
+"force": false
+},
+"user": {
+"username": "${JARVICE_APIKEY_USR}",
+"apikey": "${JARVICE_APIKEY_PSW}"
+}
+}
+EOF
+)
+echo $ubuntu | curl -X POST -d @- "$JARVICE_API/jarvice/submit" | jq .number''', returnStdout: true).trim()
+                env.JOB_NUMBER = retjson
+            }
+        }
+    }
+    stage('Job Connect') {
+        steps {
+            retjson = sh (script: '''#!/bin/bash
+while true; do 
+  test=$(curl "${JARVICE_API}/jarvice/status?username=${JARVICE_APIKEY_USR}&apikey=${JARVICE_APIKEY_PSW}&number=${JOB_NUMBER}" | jq -r .[].job_status)
+  if [[ "PROCESSING STARTING" == "${test}" ]]; then 
+    break; 
+  fi; 
+sleep 15; 
+done
+connect=$(curl "${JARVICE_API}/jarvice/connect?username=${JARVICE_APIKEY_USR}&apikey=${JARVICE_APIKEY_PSW}&number=${JOB_NUMBER}");
+echo ${connect}
+''', returnStdout: true).trim()
+            env.JOB_CONNECT = retjson
+        }
+    }
+    stage('Job File Test') {
+        steps {
+            sh '''#!/bin/bash
+set -e
+OC_FILE_CMD="owncloud/remote.php/webdav"
+OC_TEST_LOC="jarvice_file_manager_test_file"
+WORKDIR=$(mkdir -d)
+address=$(echo ${JOB_CONNECT} | jq .address)
+password=$(echo ${JOB_CONNECT} | jq .password)
+test_file=$(cat <<EOF
+Hello World!
+
+JARVICE file manager test
+EOF
+)
+echo ${test_file} > ${WORKDIR}/test_file
+curl -u nimbix:${password} -k --upload-file "${WORKDIR}/test_file" "${address}/${OC_FILE_CMD}/${OC_TEST_LOC}"
+curl -u nimbix:${password} -k --output "${WORKDIR}/oc_file" "${address}/${OC_FILE_CMD}/${OC_TEST_LOC}"
+diff ${WORKDIR}/test_file ${WORKDIR}/oc_file
+rm -rf ${WORKDIR}
+'''
+        }
+    }
+    stage('Shutdown') {
+      steps {
+        sh 'curl "${JARVICE_API}/jarvice/shutdown?username=${JARVICE_APIKEY_USR}&apikey=${JARVICE_APIKEY_PSW}&number=${JOB_NUMBER}"'
+        sleep 15
+        sh 'curl "${JARVICE_API}/jarvice/terminate?username=${JARVICE_APIKEY_USR}&apikey=${JARVICE_APIKEY_PSW}&number=${JOB_NUMBER}"'
+      }
+    }
+  }
+  environment {
+    JARVICE_API = 'https://jarvice-testing-api.k8s.dal1.jarvice.io'
+    JARVICE_NG_API = 'https://jarvice-testing-api-ng.k8s.dal1.jarvice.io'
+    JARVICE_APIKEY = credentials('khill-jarvice-testing')
+  }
+}
