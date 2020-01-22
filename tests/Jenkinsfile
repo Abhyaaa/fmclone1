@@ -15,7 +15,7 @@ pipeline {
 "staging": false,
 "checkedout": false,
 "application": {
-"command": "Server",
+"command": "filemanager",
 "geometry": "1695x1120"
 },
 "machine": {
