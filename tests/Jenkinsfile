@@ -63,7 +63,7 @@ echo ${connect}
 set -e
 OC_FILE_CMD="owncloud/remote.php/webdav"
 OC_TEST_LOC="jarvice_file_manager_test_file"
-WORKDIR=$(mkdir -d)
+WORKDIR=$(mktemp -d)
 address=$(echo ${JOB_CONNECT} | jq .address)
 password=$(echo ${JOB_CONNECT} | jq .password)
 test_file=$(cat <<EOF
