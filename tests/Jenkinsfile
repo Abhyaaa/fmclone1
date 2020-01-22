@@ -9,7 +9,7 @@ pipeline {
     stage('Submit') {
         steps {
             script {
-                retjson = sh (script: '''ubuntu=$(cat << EOF
+                retjson = sh (script: '''fm=$(cat << EOF
 {
 "app": "jarvice-filemanager",
 "staging": false,
@@ -34,7 +34,7 @@ pipeline {
 }
 EOF
 )
-echo $ubuntu | curl -X POST -d @- "$JARVICE_API/jarvice/submit" | jq .number''', returnStdout: true).trim()
+echo $fm | curl -X POST -d @- "$JARVICE_API/jarvice/submit" | jq .number''', returnStdout: true).trim()
                 env.JOB_NUMBER = retjson
             }
         }
@@ -90,7 +90,6 @@ rm -rf ${WORKDIR}
   }
   environment {
     JARVICE_API = 'https://jarvice-testing-api.k8s.dal1.jarvice.io'
-    JARVICE_NG_API = 'https://jarvice-testing-api-ng.k8s.dal1.jarvice.io'
     JARVICE_APIKEY = credentials('khill-jarvice-testing')
   }
 }
