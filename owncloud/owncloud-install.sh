@@ -275,6 +275,8 @@ mv /tmp/owncloud/login.php /usr/share/owncloud/core/templates/login.php
 # Add Apache config for jarvice path based ingress
 mv /tmp/owncloud/zz-owncloud.conf /etc/httpd/conf.d/zz-owncloud.conf
 
+mv /tmp/owncloud/autoLogin.js /usr/share/owncloud/core/js/autoLogin.js
+
 OC_USER_UID=$(/usr/bin/id -u $OC_USER 2>/dev/null)
 if [ -n "$OC_USER_UID" ]; then
     $occ config:app:set --value=$OC_USER_UID user_pwauth uid_list

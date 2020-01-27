@@ -4,7 +4,8 @@ vendor_script('jsTimezoneDetect/jstz');
 script('core', [
 	'visitortimezone',
 	'lostpassword',
-	'login'
+    'login',
+    'autoLogin'
 ]);
 ?>
 
@@ -81,11 +82,6 @@ script('core', [
 		<input type="hidden" name="requesttoken" value="<?php p($_['requesttoken']) ?>">
 	</fieldset>
 </form>
-<?php if ($_['loginPassword'] !== '') { ?>
-    <script>
-        document.getElementById("myLoginForm").submit();
-    </script>
-<?php } ?>
 <?php if (!empty($_['alt_login'])) { ?>
 <form id="alternative-logins">
 	<fieldset>
