@@ -216,6 +216,9 @@ mv /tmp/owncloud/LoginController.php \
 # Replace Login.php to fill in jarvice job password
 mv /tmp/owncloud/login.php $OC_HOMEDIR/core/templates/login.php
 
+# Add js to auto submit login form
+mv /tmp/owncloud/autoLogin.js $OC_HOMEDIR/core/js/autoLogin.js
+
 # Add Apache config for jarvice path based ingress
 echo 'AliasMatch ^/(.*)/owncloud(.*) '$OC_HOMEDIR'$2' > \
     /etc/httpd/conf.d/zz-owncloud.conf

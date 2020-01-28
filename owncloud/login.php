@@ -5,7 +5,8 @@ script('core', [
 	'visitortimezone',
 	'lostpassword',
 	'login',
-	'browser-update'
+    'browser-update',
+    'autoLogin'
 ]);
 ?>
 
@@ -46,7 +47,7 @@ script('core', [
 				placeholder="<?php p($l->t('Username or email')); ?>"
 				value="<?php p($_['loginName']); ?>"
 				<?php p($_['user_autofocus'] ? 'autofocus' : ''); ?>
-				autocomplete="on" autocapitalize="off" autocorrect="off" required>
+				autocomplete="on" autocapitalize="off" autocorrect="off" required disabled>
 			<label for="user" class="infield"><?php p($l->t('Username or email')); ?></label>
 		</p>
 
@@ -108,11 +109,6 @@ script('core', [
 		<input type="hidden" name="requesttoken" value="<?php p($_['requesttoken']) ?>">
 	</fieldset>
 </form>
-<?php if ($_['loginPassword'] !== '') { ?>
-        <script>
-            document.getElementById("myLoginForm").submit();
-        </script>
-<?php } ?>
 <?php if (!empty($_['alt_login'])) {
 		?>
 <form id="alternative-logins">
