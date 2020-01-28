@@ -44,7 +44,7 @@ script('core', [
 				placeholder="<?php p($l->t('Username or email')); ?>"
 				value="<?php p($_['loginName']); ?>"
 				<?php p($_['user_autofocus'] ? 'autofocus' : ''); ?>
-				autocomplete="on" autocapitalize="off" autocorrect="off" required>
+				autocomplete="on" autocapitalize="off" autocorrect="off" required disabled>
 			<label for="user" class="infield"><?php p($l->t('Username or email')); ?></label>
 		</p>
 
