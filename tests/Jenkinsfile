@@ -23,7 +23,7 @@ pipeline {
 "nodes": 1
 },
 "vault": {
-"name": "ephemeral",
+"name": "drop",
 "readonly": false,
 "force": false
 },
