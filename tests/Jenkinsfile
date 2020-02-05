@@ -89,7 +89,7 @@ rm -rf ${WORKDIR}
     }
   }
   environment {
-    JARVICE_API = 'https://jarvice-testing-api.k8s.dal1.jarvice.io'
-    JARVICE_APIKEY = credentials('khill-jarvice-testing')
+    JARVICE_API = credentials('jarvice2-testing-api')
+    JARVICE_APIKEY = credentials('khill-jarvice2-testing')
   }
 }
