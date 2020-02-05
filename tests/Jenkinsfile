@@ -83,7 +83,7 @@ rm -rf ${WORKDIR}
     stage('Shutdown') {
       steps {
         sh 'curl "${JARVICE_API}/jarvice/shutdown?username=${JARVICE_APIKEY_USR}&apikey=${JARVICE_APIKEY_PSW}&number=${JOB_NUMBER}"'
-        sleep 15
+        sleep 60
         sh 'curl "${JARVICE_API}/jarvice/terminate?username=${JARVICE_APIKEY_USR}&apikey=${JARVICE_APIKEY_PSW}&number=${JOB_NUMBER}"'
       }
     }
