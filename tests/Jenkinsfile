@@ -50,6 +50,7 @@ while true; do
   fi; 
 sleep 15; 
 done
+sleep 60;
 connect=$(curl "${JARVICE_API}/jarvice/connect?username=${JARVICE_APIKEY_USR}&apikey=${JARVICE_APIKEY_PSW}&number=${JOB_NUMBER}");
 echo ${connect}
 ''', returnStdout: true).trim()
