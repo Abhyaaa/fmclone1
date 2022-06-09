@@ -57,7 +57,7 @@ done
 set -e
 
 # User configs
-[ -z "$OC_USER" ] && OC_USER=nimbix
+# [ -z "$OC_USER" ] && OC_USER=nimbix
 [ -z "$OC_USER_PASS" ] && OC_USER_PASS="$(pwgen -1 32)"
 
 [ -z "$OC_DB_NAME" ] && OC_DB_NAME=owncloud
@@ -67,20 +67,20 @@ set -e
 [ -z "$OC_ADMIN_USER" ] && OC_ADMIN_USER=admin
 [ -z "$OC_ADMIN_PASS" ] && OC_ADMIN_PASS="$(pwgen -1 32)"
 
-OC_HOMEDIR=/var/www/html/owncloud
+OC_HOMEDIR=/var/www/owncloud
 
 if [ -n "$WITH_HTTPD" ]; then
     echo "Configuring for Apache httpd..."
 
-    sed -i -e "s/^User apache/User $OC_USER/" /etc/httpd/conf/httpd.conf
-    sed -i -e "s/^Group apache/Group $OC_USER/" /etc/httpd/conf/httpd.conf
+    # sed -i -e "s/^User apache/User $OC_USER/" /etc/httpd/conf/httpd.conf
+    # sed -i -e "s/^Group apache/Group $OC_USER/" /etc/httpd/conf/httpd.conf
 
     # Use JARVICE cert for SSL
-    sed -i -e 's/^SSLCertificateKeyFile/#SSLCertificateKeyFile/' \
-        /etc/httpd/conf.d/ssl.conf
-    sed -i -e \
-        's|^SSLCertificateFile.*|SSLCertificateFile /etc/JARVICE/cert.pem|' \
-        /etc/httpd/conf.d/ssl.conf
+    # sed -i -e 's/^SSLCertificateKeyFile/#SSLCertificateKeyFile/' \
+    #     /etc/httpd/conf.d/ssl.conf
+    # sed -i -e \
+    #     's|^SSLCertificateFile.*|SSLCertificateFile /etc/JARVICE/cert.pem|' \
+    #     /etc/httpd/conf.d/ssl.conf
 
 elif [ -n "$WITH_NGINX" ]; then
     echo "Configuring for nginx..."
@@ -109,11 +109,11 @@ localedef -i en_US -f UTF-8 en_US.UTF-8
 # Now do ownCloud setup and config
 #occ="sudo -u apache bash -c "source scl_source enable php72 && php /var/www/html/owncloud/occ -vvv\""
 occ_cmd() {
-    sudo -u apache bash -c "source scl_source enable php72 && php $OC_HOMEDIR/occ $*"
+    sudo -u www-data bash -c "php $OC_HOMEDIR/occ $*"
 }
 
 echo "Chown ownCloud directory... "
-chown -R apache:apache $OC_HOMEDIR
+chown -R www-data:www-data $OC_HOMEDIR
 
 # Initialize ownCloud
 echo "Configuring Owncloud initial maintenance install"
@@ -149,8 +149,8 @@ occ_cmd config:system:set --type=bool --value=true force_ssl
 #occ_cmd "config:system:delete trusted_domains"
 
 # Deleting trusted_domains config doesn't work due to bug in isTrustedDomain
-sed -i -e 's/return \\in_array.*/return true;/' \
-    $OC_HOMEDIR/lib/private/Security/TrustedDomainHelper.php
+# sed -i -e 's/return \\in_array.*/return true;/' \
+#     $OC_HOMEDIR/lib/private/Security/TrustedDomainHelper.php
 
 # Don't allow the user to change name and password
 #sed -i -e 's/.*displayNameChangeSupported.*//' \
@@ -196,7 +196,7 @@ occ_cmd "config:system:set skeletondirectory"
 # Configure unix pwauth to allow $OC_USER to login
 pwauth_pkg=$(ls $(dirname $0)/user_pwauth-*.tar.gz)
 tar -xf "$pwauth_pkg" -C $OC_HOMEDIR/apps
-chown -R apache.apache $OC_HOMEDIR/apps/user_pwauth
+chown -R www-data.www-data $OC_HOMEDIR/apps/user_pwauth
 #sed -i -e 's|apps/user_pwauth|user_pwauth|' \
 #    $OC_HOMEDIR/apps/user_pwauth/appinfo/app.php  # fix require_once bug
 occ_cmd "app:enable user_pwauth"
@@ -220,21 +220,21 @@ mv /tmp/owncloud/login.php $OC_HOMEDIR/core/templates/login.php
 mv /tmp/owncloud/autoLogin.js $OC_HOMEDIR/core/js/autoLogin.js
 
 # Add Apache config for jarvice path based ingress
-echo 'AliasMatch ^/(.*)/owncloud(.*) '$OC_HOMEDIR'$2' > \
-    /etc/httpd/conf.d/zz-owncloud.conf
+echo 'AliasMatch ^/(.*)/owncloud(.*) '$OC_HOMEDIR'$2' >> \
+    /etc/apache2/apache2.conf
 
-OC_USER_UID=$(/usr/bin/id -u $OC_USER 2>/dev/null)
-if [ -n "$OC_USER_UID" ]; then
-    occ_cmd "config:app:set --value=$OC_USER_UID user_pwauth uid_list"
-else
-    export OC_PASS=$OC_USER_PASS
-    occ_cmd "user:add --password-from-env --group=$OC_USER $OC_USER"
-fi
+# OC_USER_UID=$(/usr/bin/id -u $OC_USER 2>/dev/null)
+# if [ -n "$OC_USER_UID" ]; then
+#     occ_cmd "config:app:set --value=$OC_USER_UID user_pwauth uid_list"
+# else
+#     export OC_PASS=$OC_USER_PASS
+#     occ_cmd "user:add --password-from-env --group=$OC_USER $OC_USER"
+# fi
 
 # Setup Nimbix theme, now an OC app
 if [ -d $(dirname $0)/nimbix-theme ]; then
     cp -r $(dirname $0)/nimbix-theme $OC_HOMEDIR/apps
-    chown -R apache:apache $OC_HOMEDIR/apps/nimbix-theme
+    chown -R www-data:www-data $OC_HOMEDIR/apps/nimbix-theme
     occ_cmd app:enable nimbix-theme
 fi
 
@@ -243,10 +243,10 @@ occ_cmd config:app:set files max_chunk_size --value 2147483648
 
 # Done configuring, don't allow changes from the web interface
 occ_cmd "config:system:set --type=bool --value=true config_is_read_only"
-chmod -R 0770 /var/www/html/owncloud/data
-chmod 777 /var/www/html/owncloud/lib/private/Config.php
-chmod 777 /var/www/html/owncloud/config/config.php
-chmod 0770  /var/www/html/owncloud/config
+chmod -R 0770 /var/www/owncloud/data
+chmod 777 /var/www/owncloud/lib/private/Config.php
+chmod 777 /var/www/owncloud/config/config.php
+chmod 0770  /var/www/owncloud/config
 
 OC_URL="https://%PUBLICADDR%/owncloud/index.php/login?user=%NIMBIXUSER%&password=%NIMBIXPASSWD%"
 mkdir -p /etc/NAE
