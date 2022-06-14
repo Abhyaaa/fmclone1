@@ -1,35 +1,37 @@
 #!/bin/bash
 
-# Hack around smbpasswd issue
-chmod +x /usr/bin/smbpasswd
-
 OC_HOMEDIR=/var/www/owncloud
 
-occ_cmd() {
-    sudo -u www-data bash -c "php $OC_HOMEDIR/occ $*"
-}
-# Add JARVICE cert
-occ_cmd "security:certificates:import /etc/JARVICE/cert.pem"
-if [ -x /usr/sbin/sshd ]; then
-    /usr/sbin/sshd-keygen && /usr/sbin/sshd
-fi
-
-if [ -x /usr/bin/mysql ]; then
-    echo
-fi
-
-if [ -x /usr/sbin/php-fpm -a -x /usr/sbin/nginx ]; then
-    sudo /usr/sbin/php-fpm -D && sudo /usr/sbin/nginx
-fi
-
-if [ -x /usr/sbin/httpd ]; then
-    sudo mkdir -p /run/apache2
-    sudo chmod 01777 /run/apache2
-    sudo chmod 750 /run/apache2
+# if [ -x /usr/sbin/sshd ]; then
+#     /usr/sbin/ssh-keygen && /usr/sbin/sshd
+# fi
+    # apache workaround for logging
+    sudo chmod 777 /dev/stdout /dev/stderr
+    OC_USER="$(whoami)"
+    # sudo chown -R $OC_USER.root $OC_HOMEDIR
+    mkdir -p /tmp/config /tmp/files /tmp/apps /tmp/sessions
+    cp -r /var/www/owncloud/apps/* /tmp/apps/
     # sudo useradd -o -u 505 -g 505 -M nimbix || true
-    usermod -a -G www-data $(whoami)
-    # Set uid for pwauth
-    OC_USER_UID=$(id -u)
-    occ_cmd "config:app:set --value=$OC_USER_UID user_pwauth uid_list"
-    sudo APACHE_RUN_USER=$(whoami) APACHE_RUN_GROUP=$(whoami) /usr/bin/entrypoint /usr/sbin/apache2 -f /etc/apache2/apache2.conf -D FOREGROUND
-fi
+    # sudo sed -i "%s/www-data/${OC_USER}/g" /etc/owncloud.d/25-chown.sh
+    sed -i "s/www-data/${OC_USER}/g" $HOME/bin/occ
+    export PATH=$HOME/bin:$PATH
+    JOB_SUBPATH=""
+    [[ -n "${JARVICE_INGRESSPATH}" ]] && JOB_SUBPATH="/${JARVICE_INGRESSPATH}" 
+    APACHE_ERROR_LOG="/dev/stdout" \
+    APACHE_LOG_LEVEL="debug" \
+    APACHE_RUN_USER=$OC_USER \
+    APACHE_RUN_GROUP=$OC_USER \
+    APACHE_LISTEN=8080 \
+    OWNCLOUD_SKIP_CHOWN="true" \
+    OWNCLOUD_SKIP_CHMOD="true" \
+    OWNCLOUD_VOLUME_CONFIG="/tmp/config" \
+    OWNCLOUD_VOLUME_FILES="/tmp/files" \
+    OWNCLOUD_VOLUME_APPS="/tmp/apps" \
+    OWNCLOUD_VOLUME_SESSIONS="/tmp/sessions" \
+    OWNCLOUD_PROTOCOL="http" \
+    OWNCLOUD_SUB_URL="$JOB_SUBPATH" \
+    OWNCLOUD_CROND_ENABLED="false" \
+    OWNCLOUD_LOG_FILE="/tmp/files/owncloud.log" \
+    sleep 6000
+    # owncloud server
+    # /usr/bin/entrypoint /usr/sbin/apache2 -f /etc/apache2/apache2.conf -D FOREGROUND

@@ -136,7 +136,7 @@ occ_cmd "config:system:set --type=string --value=owncloud log_type"
 occ_cmd "config:system:set --type=int --value=0 loglevel"
 
 # Uncomment if extra debug info is needed
-#occ_cmd config:system:set --type=bool --value=true debug
+occ_cmd config:system:set --type=bool --value=true debug
 
 # Security check
 occ_cmd "config:system:set --type=bool --value=true check_for_working_htaccess"
@@ -197,7 +197,7 @@ occ_cmd "config:system:set skeletondirectory"
 pwauth_pkg=$(ls $(dirname $0)/user_pwauth-*.tar.gz)
 tar -xf "$pwauth_pkg" -C $OC_HOMEDIR/apps
 chown -R www-data.www-data $OC_HOMEDIR/apps/user_pwauth
-#sed -i -e 's|apps/user_pwauth|user_pwauth|' \
+# sed -i -e 's|apps/user_pwauth|user_pwauth|' \
 #    $OC_HOMEDIR/apps/user_pwauth/appinfo/app.php  # fix require_once bug
 occ_cmd "app:enable user_pwauth"
 occ_cmd "config:app:set --value=/usr/bin/pwauth user_pwauth pwauth_path"
@@ -248,7 +248,7 @@ chmod 777 /var/www/owncloud/lib/private/Config.php
 chmod 777 /var/www/owncloud/config/config.php
 chmod 0770  /var/www/owncloud/config
 
-OC_URL="https://%PUBLICADDR%/owncloud/index.php/login?user=%NIMBIXUSER%&password=%NIMBIXPASSWD%"
+OC_URL="https://%PUBLICADDR%/login?user=%NIMBIXUSER%&password=%NIMBIXPASSWD%"
 mkdir -p /etc/NAE
 cat <<EOF | sudo tee /etc/NAE/url.txt >/dev/null
 $OC_URL
