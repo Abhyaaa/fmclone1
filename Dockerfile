@@ -14,12 +14,7 @@ RUN apt-get -y update && \
     DEBIAN_FRONTEND=noninteractive apt-get -y install pwgen pwauth
 
 RUN mkdir -p $OC_CONFIG_ROOT/config $OC_CONFIG_ROOT/files $OC_CONFIG_ROOT/apps $OC_CONFIG_ROOT/sessions && \
-    mkdir -p /run/apache2 && \
-    mkdir -p /var/run/lock/apache2 && \
-    chown -R www-data.www-data /var/www/owncloud /var/run/lock/apache2 && \
-    chown -R www-data.www-data $OC_CONFIG_ROOT && \
-    chmod 01777 /run/apache2 && \
-    chmod 750 /run/apache2
+    chown -R www-data.www-data $OC_CONFIG_ROOT
 
 # Set locale
 RUN localedef -i en_US -f UTF-8 en_US.UTF-8
@@ -32,9 +27,12 @@ RUN /tmp/owncloud/owncloud-install.sh --with-httpd && \
 
 RUN echo 'http://%PUBLICADDR%:8080/login?user=%NIMBIXUSER%&password=%NIMBIXPASSWD%' > /etc/NAE/url.txt
 
-RUN chown -R www-data.www-data /etc/php/7.4/mods-available/owncloud.ini && \
-    chown -R www-data.www-data /etc/apache2/sites-enabled/ && \
-    chmod -R 770 /var/www/owncloud
+RUN mkdir -p /etc/skel/owncloud_root && \
+    mv /var/www/owncloud/* /etc/skel/owncloud_root && \
+    chmod 777 /var/www /var/www/owncloud
+
+RUN chmod 777 /etc/php/7.4/mods-available/owncloud.ini && \
+    chmod -R 777 /etc/apache2/sites-enabled/
 
 # RUN mkdir /etc/skel/bin && \
 #      cp /usr/bin/occ /etc/skel/bin && \
@@ -52,4 +50,5 @@ COPY NAE/help.html /etc/NAE/help.html
 
 RUN mkdir -p /etc/NAE && touch /etc/NAE/screenshot.png /etc/NAE/screenshot.txt /etc/NAE/license.txt /etc/NAE/AppDef.json
 
+WORKDIR /var/www
 ENTRYPOINT ["/usr/local/bin/owncloud-start.sh"]
