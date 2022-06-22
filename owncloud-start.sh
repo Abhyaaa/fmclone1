@@ -1,37 +1,30 @@
 #!/bin/bash
-
+# sudo newgrp www-data << EOF
+# export DEBUG="true"
+[[ "${DEBUG}" == "true" ]] && set -x
 OC_HOMEDIR=/var/www/owncloud
+OC_CONFIG_ROOT="$HOME/owncloud"
+usermod -a -G www-data $JARVICE_ID_USER
+sed -i 's/www-data/$JARVICE_ID_USER/' /usr/bin/occ
+# apache workaround for logging
+chmod 777 /dev/stdout /dev/stderr
+OC_USER="$JARVICE_ID_USER"
+export OWNCLOUD_SUB_URL="/${JARVICE_INGRESSPATH:-}"
+export OWNCLOUD_OVERWRITE_CLI_URL="http://localhost${OWNCLOUD_SUB_URL}"
+export OWNCLOUD_HTACCESS_REWRITE_BASE="${OWNCLOUD_SUB_URL}"
 
-# if [ -x /usr/sbin/sshd ]; then
-#     /usr/sbin/ssh-keygen && /usr/sbin/sshd
-# fi
-    # apache workaround for logging
-    sudo chmod 777 /dev/stdout /dev/stderr
-    OC_USER="$(whoami)"
-    # sudo chown -R $OC_USER.root $OC_HOMEDIR
-    mkdir -p /tmp/config /tmp/files /tmp/apps /tmp/sessions
-    cp -r /var/www/owncloud/apps/* /tmp/apps/
-    # sudo useradd -o -u 505 -g 505 -M nimbix || true
-    # sudo sed -i "%s/www-data/${OC_USER}/g" /etc/owncloud.d/25-chown.sh
-    sed -i "s/www-data/${OC_USER}/g" $HOME/bin/occ
-    export PATH=$HOME/bin:$PATH
-    JOB_SUBPATH=""
-    [[ -n "${JARVICE_INGRESSPATH}" ]] && JOB_SUBPATH="/${JARVICE_INGRESSPATH}" 
-    APACHE_ERROR_LOG="/dev/stdout" \
-    APACHE_LOG_LEVEL="debug" \
-    APACHE_RUN_USER=$OC_USER \
-    APACHE_RUN_GROUP=$OC_USER \
-    APACHE_LISTEN=8080 \
-    OWNCLOUD_SKIP_CHOWN="true" \
-    OWNCLOUD_SKIP_CHMOD="true" \
-    OWNCLOUD_VOLUME_CONFIG="/tmp/config" \
-    OWNCLOUD_VOLUME_FILES="/tmp/files" \
-    OWNCLOUD_VOLUME_APPS="/tmp/apps" \
-    OWNCLOUD_VOLUME_SESSIONS="/tmp/sessions" \
-    OWNCLOUD_PROTOCOL="http" \
-    OWNCLOUD_SUB_URL="$JOB_SUBPATH" \
-    OWNCLOUD_CROND_ENABLED="false" \
-    OWNCLOUD_LOG_FILE="/tmp/files/owncloud.log" \
-    sleep 6000
-    # owncloud server
-    # /usr/bin/entrypoint /usr/sbin/apache2 -f /etc/apache2/apache2.conf -D FOREGROUND
+source $OC_CONFIG_ROOT/owncloud-setup.sh
+source $OC_CONFIG_ROOT/owncloud-db.sh
+export OWNCLOUD_SESSION_SAVE_PATH=${OWNCLOUD_VOLUME_SESSIONS}
+export APACHE_ERROR_LOG="/dev/stdout"
+export APACHE_LOG_LEVEL="debug"
+export APACHE_RUN_USER="$OC_USER"
+export APACHE_RUN_GROUP="$OC_USER"
+export APACHE_LISTEN=8080
+export JARVICE_ID_USER=$JARVICE_ID_USER
+
+ln -s ${OWNCLOUD_VOLUME_CONFIG} /var/www/owncloud/config
+ln -s ${OWNCLOUD_VOLUME_APPS} /var/www/owncloud/custom
+
+owncloud server
+# EOF

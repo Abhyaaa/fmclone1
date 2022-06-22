@@ -17,11 +17,18 @@
   ],
   "commands": {
     "filemanager": {
-      "path": "/usr/bin/bash",
+      "path": "/usr/bin/sudo",
       "interactive": true,
       "name": "File Manager",
       "description": "Launch this service to upload and download files via your web browser",
       "parameters": {
+	"-E": {
+          "name": "-E",
+	  "type": "CONST",
+	  "value": "-E",
+	  "required": true,
+	  "positional": true
+	},
         "start": {
           "name": "start",
           "type": "CONST",

@@ -1,6 +1,9 @@
 FROM owncloud/server:10.10
 LABEL maintainer="Nimbix, Inc."
 
+ARG OC_CONFIG_ROOT
+ENV OC_CONFIG_ROOT=${OC_CONFIG_ROOT:-/etc/skel/owncloud}
+
 RUN apt-get -y update && \
     DEBIAN_FRONTEND=noninteractive apt-get -y install curl && \
     curl -H 'Cache-Control: no-cache' \
@@ -8,30 +11,39 @@ RUN apt-get -y update && \
         | bash -s -- --setup-nimbix-desktop
 
 RUN apt-get -y update && \
-    DEBIAN_FRONTEND=noninteractive apt-get -y install pwgen pwauth ssh
+    DEBIAN_FRONTEND=noninteractive apt-get -y install pwgen pwauth
+
+RUN mkdir -p $OC_CONFIG_ROOT/config $OC_CONFIG_ROOT/files $OC_CONFIG_ROOT/apps $OC_CONFIG_ROOT/sessions && \
+    mkdir -p /run/apache2 && \
+    mkdir -p /var/run/lock/apache2 && \
+    chown -R www-data.www-data /var/www/owncloud /var/run/lock/apache2 && \
+    chown -R www-data.www-data $OC_CONFIG_ROOT && \
+    chmod 01777 /run/apache2 && \
+    chmod 750 /run/apache2
+
+# Set locale
+RUN localedef -i en_US -f UTF-8 en_US.UTF-8
 
 # Copy in custom owncloud installer and components, run the installer
-COPY owncloud /tmp/owncloud
+COPY --chown=www-data owncloud /tmp/owncloud
 RUN /tmp/owncloud/owncloud-install.sh --with-httpd && \
-    rm -rf /tmp/owncloud
+    rm -rf /tmp/owncloud && \
+    cp -r /var/www/owncloud/apps /etc/skel/owncloud
 
-RUN mkdir -p /run/apache2 && \
-    sudo mkdir -p /var/lock/apache2 && \
-    sudo chmod 01777 /run/apache2 && \
-    sudo chmod 750 /run/apache2
- 
-RUN chmod -R 777 /var/www/owncloud && \
-    chmod -R 777 /etc/php/7.4/mods-available/owncloud.ini && \
-    chmod -R 777 /etc/apache2/sites-enabled/ && \
-    chmod 777 /dev/stderr && \
-    chmod 777 /dev/stdout
+RUN echo 'http://%PUBLICADDR%:8080/login?user=%NIMBIXUSER%&password=%NIMBIXPASSWD%' > /etc/NAE/url.txt
 
-RUN mkdir /etc/skel/bin && \
-    cp /usr/bin/occ /etc/skel/bin && \
-    echo 'export PATH=$HOME/bin:$PATH' >> /etc/skel/.bashrc
+RUN chown -R www-data.www-data /etc/php/7.4/mods-available/owncloud.ini && \
+    chown -R www-data.www-data /etc/apache2/sites-enabled/ && \
+    chmod -R 770 /var/www/owncloud
 
-COPY owncloud-start.sh /usr/local/bin/owncloud-start.sh
-COPY owncloud-setup.sh /usr/local/bin/owncloud-setup.sh
+# RUN mkdir /etc/skel/bin && \
+#      cp /usr/bin/occ /etc/skel/bin && \
+#      echo 'export PATH=$HOME/bin:$PATH' >> /etc/skel/.bashrc
+
+RUN sed -i 's/${OWNCLOUD_PRE_SERVER_PATH} -iname \*.sh/\${OWNCLOUD_PRE_SERVER_PATH} -iname \\*.sh/g' /usr/bin/server
+
+COPY --chown=www-data owncloud-start.sh /usr/local/bin/owncloud-start.sh
+COPY --chown=www-data owncloud-setup.sh /etc/pre_server.d/owncloud-setup.sh
 
 COPY NAE/AppDef.json /etc/NAE/AppDef.json
 RUN curl --fail -X POST -d @/etc/NAE/AppDef.json https://cloud.nimbix.net/api/jarvice/validate
