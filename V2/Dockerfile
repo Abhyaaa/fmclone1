@@ -1,4 +1,4 @@
-FROM gcr.io/jarvice/app-filemanager:ocpassform-sameorigin
+FROM gcr.io/jarvice/app-filemanager:ocpassform-sameorigin as V1
 
 RUN chmod -R 777 /usr /etc /run /var; \
     chmod -R 777 /run/httpd; \
@@ -12,6 +12,12 @@ RUN chmod -R 777 /usr /etc /run /var; \
     rm -f /etc/NAE/AppDef.json; \
     echo 'https://%PUBLICADDR%:5902/owncloud/index.php/login?user=%NIMBIXUSER%&password=%RANDOM64%' > /etc/NAE/url.txt
 
+FROM scratch
+
+COPY --from=V1 / /
+
 COPY owncloud-start.sh /usr/local/bin/owncloud-start.sh
 COPY AppDef.json /etc/NAE/AppDef.json
+
+RUN mkdir -p /etc/NAE && touch /etc/NAE/{url.txt,AppDef.json}
  
