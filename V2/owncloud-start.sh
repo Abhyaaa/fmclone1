@@ -1,7 +1,6 @@
 #!/bin/bash
 
 mkdir -p /run/httpd
-chmod 01777 /run/httpd
 chmod 750 /run/httpd
 chown -R $USER:$USER /var/lib/owncloud/
 chmod -R 770 /var/lib/owncloud/
