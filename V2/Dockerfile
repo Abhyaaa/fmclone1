@@ -19,5 +19,5 @@ COPY --from=V1 / /
 COPY owncloud-start.sh /usr/local/bin/owncloud-start.sh
 COPY AppDef.json /etc/NAE/AppDef.json
 
-RUN mkdir -p /etc/NAE && touch /etc/NAE/{url.txt,AppDef.json}
- 
+RUN mkdir -p /etc/NAE && touch /etc/NAE/screenshot.png /etc/NAE/screenshot.txt /etc/NAE/license.txt /etc/NAE/AppDef.json
+
