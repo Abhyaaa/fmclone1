@@ -13,20 +13,20 @@ export OWNCLOUD_LOG_FILE="$OC_CONFIG_ROOT/files/owncloud.log"
 set -e
 
 # User configs
-[ -z "$OC_USER_PASS" ] && OC_USER_PASS="$(pwgen -1 32)"
+[[ -z "$OC_USER_PASS" ]] && OC_USER_PASS="$(pwgen -1 32)" || true
 
-[ -z "$OC_DB_NAME" ] && OC_DB_NAME=owncloud
-[ -z "$OC_DB_USER" ] && OC_DB_USER=root
-[ -z "$OC_DB_PASS" ] && OC_DB_PASS="$(pwgen -1 32)"
+[[ -z "$OC_DB_NAME" ]] && OC_DB_NAME=owncloud || true
+[[ -z "$OC_DB_USER" ]] && OC_DB_USER=root || true
+[[ -z "$OC_DB_PASS" ]] && OC_DB_PASS="$(pwgen -1 32)" || true
 
-[ -z "$OC_ADMIN_USER" ] && OC_ADMIN_USER=admin
-[ -z "$OC_ADMIN_PASS" ] && OC_ADMIN_PASS="$(pwgen -1 32)"
+[[ -z "$OC_ADMIN_USER" ]] && OC_ADMIN_USER=admin || true
+[[ -z "$OC_ADMIN_PASS" ]] && OC_ADMIN_PASS="$(pwgen -1 32)" || true
 
 OC_HOMEDIR=/var/www/owncloud
 
 occ_db_type=sqlite
-
-[[ "${DEBUG}" == "true" ]] && set -x
+DEBUG="true"
+[[ "${DEBUG}" == "true" ]] && set -x || true
 
 for FILE in $(find /etc/entrypoint.d -iname \*.sh | sort)
 do

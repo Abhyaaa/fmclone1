@@ -1,8 +1,13 @@
-FROM owncloud/server:10.10
+FROM owncloud/server:10.10 as builder
 LABEL maintainer="Nimbix, Inc."
 
+# Serial Number
+ARG SERIAL_NUMBER=20230405.1000
+ENV SERIAL_NUMBER=${SERIAL_NUMBER}
+
 ARG OC_CONFIG_ROOT
-ENV OC_CONFIG_ROOT=${OC_CONFIG_ROOT:-/etc/skel/owncloud}
+# ENV OC_CONFIG_ROOT=${OC_CONFIG_ROOT:-/etc/skel/owncloud}
+ENV OC_CONFIG_ROOT=/etc/skel/owncloud
 
 RUN apt-get -y update && \
     DEBIAN_FRONTEND=noninteractive apt-get -y install curl && \
@@ -10,7 +15,7 @@ RUN apt-get -y update && \
         https://raw.githubusercontent.com/nimbix/image-common/master/install-nimbix.sh \
         | bash -s -- --setup-nimbix-desktop
 
-RUN apt-get -y update && \
+RUN apt-get -y update && apt-get -y upgrade && \
     DEBIAN_FRONTEND=noninteractive apt-get -y install pwgen pwauth
 
 RUN mkdir -p $OC_CONFIG_ROOT/config $OC_CONFIG_ROOT/files $OC_CONFIG_ROOT/apps $OC_CONFIG_ROOT/sessions && \
@@ -29,10 +34,10 @@ RUN echo 'http://%PUBLICADDR%:8080/login?user=%NIMBIXUSER%&password=%NIMBIXPASSW
 
 RUN mkdir -p /etc/skel/owncloud_root && \
     mv /var/www/owncloud/* /etc/skel/owncloud_root && \
-    chmod 777 /var/www /var/www/owncloud
+    chmod --recursive 0777 /var/www
 
-RUN chmod 777 /etc/php/7.4/mods-available/owncloud.ini && \
-    chmod -R 777 /etc/apache2/sites-enabled/
+RUN chmod --recursive 0777 /etc/php/7.4/mods-available/owncloud.ini && \
+    chmod --recursive 0777 /etc/apache2/sites-enabled/
 
 # RUN mkdir /etc/skel/bin && \
 #      cp /usr/bin/occ /etc/skel/bin && \
@@ -51,4 +56,8 @@ COPY NAE/help.html /etc/NAE/help.html
 RUN mkdir -p /etc/NAE && touch /etc/NAE/screenshot.png /etc/NAE/screenshot.txt /etc/NAE/license.txt /etc/NAE/AppDef.json
 
 WORKDIR /var/www
-ENTRYPOINT ["/usr/local/bin/owncloud-start.sh"]
+# ENTRYPOINT ["/usr/local/bin/owncloud-start.sh"]
+
+FROM scratch
+
+COPY --from=builder --chmod=0777 / /

@@ -1,13 +1,17 @@
 #!/bin/bash
 set -eo pipefail
-[[ "${DEBUG}" == "true" ]] && set -x
-OC_CONFIG_ROOT="$HOME/owncloud"
+[[ "${DEBUG}" == "true" ]] && set -x || true
+
+echo "In Owncloud-setup..."
+
+# OC_CONFIG_ROOT="$HOME/owncloud"
+OC_CONFIG_ROOT=/etc/skel/owncloud
 for FILE in $(find /etc/entrypoint.d -iname \*.sh | sort)
 do
   source ${FILE}
 done
 JOB_SUBPATH=""
-[[ -n "${JARVICE_INGRESSPATH}" ]] && JOB_SUBPATH="/${JARVICE_INGRESSPATH}"
+[[ -n "${JARVICE_INGRESSPATH}" ]] && JOB_SUBPATH="/${JARVICE_INGRESSPATH}" || true
 OWNCLOUD_SUB_URL="$JOB_SUBPATH"
 source $OC_CONFIG_ROOT/owncloud-setup.sh
 source $OC_CONFIG_ROOT/owncloud-db.sh
