@@ -1,13 +1,17 @@
-FROM owncloud/server:10.10 as builder
+# Using 10 gets us to trusted_domains error
+FROM owncloud/server:10.9 as builder 
 LABEL maintainer="Nimbix, Inc."
 
 # Serial Number
-ARG SERIAL_NUMBER=20230405.1000
+ARG SERIAL_NUMBER=20230407.1000
 ENV SERIAL_NUMBER=${SERIAL_NUMBER}
 
 ARG OC_CONFIG_ROOT
 # ENV OC_CONFIG_ROOT=${OC_CONFIG_ROOT:-/etc/skel/owncloud}
 ENV OC_CONFIG_ROOT=/etc/skel/owncloud
+
+# Try adding a file that apache keeps erroring at
+RUN mkdir -p /etc/apache2 && touch /etc/apache2/envvars
 
 RUN apt-get -y update && \
     DEBIAN_FRONTEND=noninteractive apt-get -y install curl && \
@@ -55,9 +59,11 @@ COPY NAE/help.html /etc/NAE/help.html
 
 RUN mkdir -p /etc/NAE && touch /etc/NAE/screenshot.png /etc/NAE/screenshot.txt /etc/NAE/license.txt /etc/NAE/AppDef.json
 
+RUN chmod -R 777 /etc/skel /run /var
+
 WORKDIR /var/www
 # ENTRYPOINT ["/usr/local/bin/owncloud-start.sh"]
 
 FROM scratch
 
-COPY --from=builder --chmod=0777 / /
+COPY --from=builder / /

@@ -44,6 +44,7 @@ echo 'export OWNCLOUD_VOLUME_ROOT="$HOME/owncloud"' >> $OC_CONFIG_ROOT/owncloud-
 echo 'export OWNCLOUD_PROTOCOL="http"' >> $OC_CONFIG_ROOT/owncloud-setup.sh
 echo 'export OWNCLOUD_CROND_ENABLED="false"' >> $OC_CONFIG_ROOT/owncloud-setup.sh
 echo 'export OWNCLOUD_LOG_FILE="$HOME/owncloud/files/owncloud.log"' >> $OC_CONFIG_ROOT/owncloud-setup.sh
+# echo 'export OWNCLOUD_SKIP_TRUSTED_DOMAIN_VERIFICATION="true"' >> $OC_CONFIG_ROOT/owncloud-setup.sh
 
 
 echo "Configuring Owncloud initial maintenance install"
@@ -74,8 +75,17 @@ occ config:system:set --type=bool --value=true check_for_working_htaccess
 occ config:system:set --type=bool --value=true force_ssl
 
 # Allow connections from anywhere
-#occ_cmd "config:system:delete trusted_domains 0"
-#occ_cmd "config:system:delete trusted_domains"
+# occ config:system:delete trusted_domains 0
+# occ_cmd "config:system:delete trusted_domains"
+
+# sudo -u www-data ./occ config:system:get trusted_domains
+# localhost
+# owncloud.local
+# sample.tld
+# To replace sample.tld with example.com trusted_domains ⇒ 2 needs to be set:
+
+# sudo -u www-data ./occ config:system:set trusted_domains 2 --value=example.com
+# System config value trusted_domains => 2 set to string example.com
 
 # Deleting trusted_domains config doesn't work due to bug in isTrustedDomain
 # sed -i -e 's/return \\in_array.*/return true;/' \
