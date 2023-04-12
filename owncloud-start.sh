@@ -1,6 +1,6 @@
 #!/bin/bash
 # sudo newgrp www-data << EOF
-export DEBUG="true"
+# export DEBUG="true"
 [[ "${DEBUG}" == "true" ]] && set -x || true
 OC_HOMEDIR=/var/www/owncloud
 # OC_CONFIG_ROOT="$HOME/owncloud"
@@ -34,6 +34,15 @@ export APACHE_LISTEN=8080
 
 sudo ln -s ${OWNCLOUD_VOLUME_CONFIG} /var/www/owncloud/config
 sudo ln -s ${OWNCLOUD_VOLUME_APPS} /var/www/owncloud/custom
+
+echo Starting SSHd
+# start SSHd
+if [[ -x /usr/sbin/sshd ]]; then
+    # change where we start sftp from...
+    sudo sed -i 's/\Subsystem\tsftp\t\/usr\/lib\/openssh\/sftp-server\b/Subsystem\tsftp\t\/usr\/lib\/openssh\/sftp-server -d \/data/g' /etc/ssh/sshd_config
+    # ssh-keygen -q -t rsa -N '' <<< $'\ny'
+    sudo service ssh start
+fi
 
 echo "Starting owncloud"
 owncloud server

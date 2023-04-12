@@ -25,7 +25,7 @@ set -e
 OC_HOMEDIR=/var/www/owncloud
 
 occ_db_type=sqlite
-DEBUG="true"
+# DEBUG="true"
 [[ "${DEBUG}" == "true" ]] && set -x || true
 
 for FILE in $(find /etc/entrypoint.d -iname \*.sh | sort)

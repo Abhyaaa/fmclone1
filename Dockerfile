@@ -17,7 +17,7 @@ RUN apt-get -y update && \
     DEBIAN_FRONTEND=noninteractive apt-get -y install curl && \
     curl -H 'Cache-Control: no-cache' \
         https://raw.githubusercontent.com/nimbix/image-common/master/install-nimbix.sh \
-        | bash -s -- --setup-nimbix-desktop
+        | bash -s -- --skip-mpi-pkg
 
 RUN apt-get -y update && apt-get -y upgrade && \
     DEBIAN_FRONTEND=noninteractive apt-get -y install pwgen pwauth
@@ -34,7 +34,8 @@ RUN /tmp/owncloud/owncloud-install.sh --with-httpd && \
     rm -rf /tmp/owncloud && \
     cp -r /var/www/owncloud/apps /etc/skel/owncloud
 
-RUN echo 'http://%PUBLICADDR%:8080/login?user=%NIMBIXUSER%&password=%NIMBIXPASSWD%' > /etc/NAE/url.txt
+RUN mkdir -p /etc/NAE && \
+    echo 'http://%PUBLICADDR%:8080/login?user=%NIMBIXUSER%&password=%NIMBIXPASSWD%' > /etc/NAE/url.txt
 
 RUN mkdir -p /etc/skel/owncloud_root && \
     mv /var/www/owncloud/* /etc/skel/owncloud_root && \
@@ -60,6 +61,18 @@ COPY NAE/help.html /etc/NAE/help.html
 RUN mkdir -p /etc/NAE && touch /etc/NAE/screenshot.png /etc/NAE/screenshot.txt /etc/NAE/license.txt /etc/NAE/AppDef.json
 
 RUN chmod -R 777 /etc/skel /run /var
+
+# Try deleting some packages...
+RUN apt-get purge -y \
+    cmake* \
+    cpp* \
+    git \
+    xz-utils \
+    samba*
+
+RUN apt-get -y autoclean && \
+    apt-get -y autoremove && \
+    apt-get clean
 
 WORKDIR /var/www
 # ENTRYPOINT ["/usr/local/bin/owncloud-start.sh"]

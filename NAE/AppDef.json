@@ -1,5 +1,5 @@
 {
-  "name": "JARVICE File Manager (Beta)",
+  "name": "JARVICE File Manager STW (Alpha)",
   "description": "The JARVICE File Manager is a browser-based service that allows you to easily upload and download files from the Nimbix Cloud. This Beta release includes experimental support for uploading files larger than 4GB.",
   "author": "Nimbix, Inc.",
   "licensed": true,
