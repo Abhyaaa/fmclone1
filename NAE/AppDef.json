@@ -7,7 +7,7 @@
     "System"
   ],
   "machines": [
-    "n0"
+    "n0*"
   ],
   "vault-types": [
     "FILE",
