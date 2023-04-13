@@ -1,5 +1,5 @@
-# Using 10 gets us to trusted_domains error
-FROM owncloud/server:10.9 as builder 
+# Using 10 gets us to trusted_domains error stay on 9
+FROM owncloud/server:10.9 as builder
 LABEL maintainer="Nimbix, Inc."
 
 # Serial Number
@@ -7,7 +7,6 @@ ARG SERIAL_NUMBER=20230407.1000
 ENV SERIAL_NUMBER=${SERIAL_NUMBER}
 
 ARG OC_CONFIG_ROOT
-# ENV OC_CONFIG_ROOT=${OC_CONFIG_ROOT:-/etc/skel/owncloud}
 ENV OC_CONFIG_ROOT=/etc/skel/owncloud
 
 # Try adding a file that apache keeps erroring at
@@ -44,19 +43,14 @@ RUN mkdir -p /etc/skel/owncloud_root && \
 RUN chmod --recursive 0777 /etc/php/7.4/mods-available/owncloud.ini && \
     chmod --recursive 0777 /etc/apache2/sites-enabled/
 
-# RUN mkdir /etc/skel/bin && \
-#      cp /usr/bin/occ /etc/skel/bin && \
-#      echo 'export PATH=$HOME/bin:$PATH' >> /etc/skel/.bashrc
-
 RUN sed -i 's/${OWNCLOUD_PRE_SERVER_PATH} -iname \*.sh/\${OWNCLOUD_PRE_SERVER_PATH} -iname \\*.sh/g' /usr/bin/server
 
 COPY --chown=www-data owncloud-start.sh /usr/local/bin/owncloud-start.sh
 COPY --chown=www-data owncloud-setup.sh /etc/pre_server.d/owncloud-setup.sh
 
 COPY NAE/AppDef.json /etc/NAE/AppDef.json
-RUN curl --fail -X POST -d @/etc/NAE/AppDef.json https://cloud.nimbix.net/api/jarvice/validate
-
 COPY NAE/help.html /etc/NAE/help.html
+RUN curl --fail -X POST -d @/etc/NAE/AppDef.json https://cloud.nimbix.net/api/jarvice/validate
 
 RUN mkdir -p /etc/NAE && touch /etc/NAE/screenshot.png /etc/NAE/screenshot.txt /etc/NAE/license.txt /etc/NAE/AppDef.json
 
@@ -75,7 +69,6 @@ RUN apt-get -y autoclean && \
     apt-get clean
 
 WORKDIR /var/www
-# ENTRYPOINT ["/usr/local/bin/owncloud-start.sh"]
 
 FROM scratch
 
