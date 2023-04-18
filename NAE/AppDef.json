@@ -3,6 +3,7 @@
   "description": "The JARVICE File Manager is a browser-based service that allows you to easily upload and download files from the Nimbix Cloud.",
   "author": "Nimbix, Inc.",
   "licensed": true,
+  "appdefversion": 2,
   "classifications": [
     "System"
   ],

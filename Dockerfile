@@ -27,14 +27,19 @@ RUN mkdir -p $OC_CONFIG_ROOT/config $OC_CONFIG_ROOT/files $OC_CONFIG_ROOT/apps $
 # Set locale
 RUN localedef -i en_US -f UTF-8 en_US.UTF-8
 
-# Copy in custom owncloud installer and components, run the installer
+# Copy in custom owncloud installer and components, run the installer (composer.lock contains firebase php 5.5 {threat})
 COPY --chown=www-data owncloud /tmp/owncloud
 RUN /tmp/owncloud/owncloud-install.sh --with-httpd && \
     rm -rf /tmp/owncloud && \
+    sed -i '83 i if (getenv("JARVICE_JOBTOKEN64") == $password) return $uid;' /var/www/owncloud/apps/user_pwauth/lib/UserPwauth.php && \
+    rm /var/www/owncloud/apps/files_external/3rdparty/composer.lock && \
     cp -r /var/www/owncloud/apps /etc/skel/owncloud
 
 RUN mkdir -p /etc/NAE && \
-    echo 'http://%PUBLICADDR%:8080/login?user=%NIMBIXUSER%&password=%NIMBIXPASSWD%' > /etc/NAE/url.txt
+    echo 'http://%PUBLICADDR%:5902/login?user=%NIMBIXUSER%&password=%RANDOM64%' > /etc/NAE/url.txt
+
+# Set /data as the entry point when using sftp [Does nothing as sshd is not run on this image but on init...]
+RUN sed -i 's/\Subsystem\tsftp\t\/usr\/lib\/openssh\/sftp-server\b/Subsystem\tsftp\t\/usr\/lib\/openssh\/sftp-server -d \/data/g' /etc/ssh/sshd_config
 
 RUN mkdir -p /etc/skel/owncloud_root && \
     mv /var/www/owncloud/* /etc/skel/owncloud_root && \
@@ -61,8 +66,7 @@ RUN apt-get purge -y \
     cmake* \
     cpp* \
     git \
-    xz-utils \
-    samba*
+    xz-utils
 
 RUN apt-get -y autoclean && \
     apt-get -y autoremove && \

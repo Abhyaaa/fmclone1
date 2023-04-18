@@ -1,5 +1,7 @@
+#  2>&1 | tee build.log
+
 owncloud:
-	DOCKER_BUILDKIT=1 docker build --pull --rm -f "Dockerfile" -t us-docker.pkg.dev/jarvice-apps/images/filemanager:oc10.9-20230413 "." 2>&1 | tee build.log
+	DOCKER_BUILDKIT=1 docker build --pull --rm -f "Dockerfile" -t us-docker.pkg.dev/jarvice-apps/images/filemanager:oc10.9-v2-test "."
 
 push: owncloud
-	docker push us-docker.pkg.dev/jarvice-apps/images/filemanager:oc10.9-20230413
+	docker push us-docker.pkg.dev/jarvice-apps/images/filemanager:oc10.9-v2-test

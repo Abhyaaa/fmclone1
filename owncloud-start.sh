@@ -6,14 +6,14 @@ OC_HOMEDIR=/var/www/owncloud
 # OC_CONFIG_ROOT="$HOME/owncloud"
 OC_CONFIG_ROOT=/etc/skel/owncloud
 JARVICE_ID_USER="${JARVICE_ID_USER:-nimbix}"
-echo "Adding user: ${JARVICE_ID_USER} to www-data"
-sudo usermod -aG www-data ${JARVICE_ID_USER}
+# echo "Adding user: ${JARVICE_ID_USER} to www-data"
+# sudo usermod -aG www-data ${JARVICE_ID_USER}
 # sed -i "s/www-data/$JARVICE_ID_USER/" /usr/bin/occ # Is not needed as user will not be uid == 0
 # apache workaround for logging
-sudo chmod 777 /dev/stdout /dev/stderr
+# sudo chmod 777 /dev/stdout /dev/stderr
 rm -rf $OC_HOMEDIR
 # ln -s $HOME/owncloud_root $OC_HOMEDIR
-sudo ln -s /etc/skel/owncloud_root $OC_HOMEDIR
+ln -s /etc/skel/owncloud_root $OC_HOMEDIR
 OC_USER="$JARVICE_ID_USER"
 OC_GROUP=$(id -g ${JARVICE_ID_USER:-nimbix})
 export OWNCLOUD_SUB_URL="/${JARVICE_INGRESSPATH:-}"
@@ -30,19 +30,11 @@ export APACHE_LOG_LEVEL="debug"
 export APACHE_RUN_USER="$OC_USER"
 # export APACHE_RUN_GROUP="$OC_GROUP"
 export APACHE_RUN_GROUP=$(id -gn ${JARVICE_ID_USER:-nimbix})
-export APACHE_LISTEN=8080
+export JARVICE_JOBTOKEN64=${JARVICE_JOBTOKEN:0:64}
+export APACHE_LISTEN=${JARVICE_SERVICE_PORT:-5902}
 
-sudo ln -s ${OWNCLOUD_VOLUME_CONFIG} /var/www/owncloud/config
-sudo ln -s ${OWNCLOUD_VOLUME_APPS} /var/www/owncloud/custom
-
-echo Starting SSHd
-# start SSHd
-if [[ -x /usr/sbin/sshd ]]; then
-    # change where we start sftp from...
-    sudo sed -i 's/\Subsystem\tsftp\t\/usr\/lib\/openssh\/sftp-server\b/Subsystem\tsftp\t\/usr\/lib\/openssh\/sftp-server -d \/data/g' /etc/ssh/sshd_config
-    # ssh-keygen -q -t rsa -N '' <<< $'\ny'
-    sudo service ssh start
-fi
+ln -s ${OWNCLOUD_VOLUME_CONFIG} /var/www/owncloud/config
+ln -s ${OWNCLOUD_VOLUME_APPS} /var/www/owncloud/custom
 
 echo "Starting owncloud"
 owncloud server
