@@ -31,6 +31,7 @@ RUN localedef -i en_US -f UTF-8 en_US.UTF-8
 COPY --chown=www-data owncloud /tmp/owncloud
 RUN /tmp/owncloud/owncloud-install.sh --with-httpd && \
     rm -rf /tmp/owncloud && \
+    rm /var/www/owncloud/apps/files_external/3rdparty/composer.lock && \
     cp -r /var/www/owncloud/apps /etc/skel/owncloud
 
 RUN mkdir -p /etc/NAE && \
@@ -61,8 +62,7 @@ RUN apt-get purge -y \
     cmake* \
     cpp* \
     git \
-    xz-utils \
-    samba*
+    xz-utils
 
 RUN apt-get -y autoclean && \
     apt-get -y autoremove && \
