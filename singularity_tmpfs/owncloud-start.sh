@@ -7,11 +7,14 @@ OC_HOMEDIR=/var/www/owncloud
 OC_CONFIG_ROOT=/etc/skel/owncloud
 JARVICE_ID_USER="${JARVICE_ID_USER:-nimbix}"
 
-# ln -s $HOME/owncloud_root $OC_HOMEDIR
-mv $HOME/owncloud_root $OC_HOMEDIR  # Don't ln but copy directory in tmpfs mode
+# note that /var/www/owncloud is not writable, so instead we put a broken
+# link there at build time, and next we'll link the proper directory to
+# that broken link (2 symlinks)
+ln -s $HOME/owncloud_root /tmp/owncloud_root
 
 OC_USER="$JARVICE_ID_USER"
 OC_GROUP=$(id -g ${JARVICE_ID_USER:-nimbix})
+mkdir -p /tmp/sites-enabled
 export OWNCLOUD_SUB_URL="/${JARVICE_INGRESSPATH:-}"
 export OWNCLOUD_OVERWRITE_CLI_URL="http://localhost${OWNCLOUD_SUB_URL}"
 export OWNCLOUD_DOMAIN="localhost,http://localhost,https://localhost"

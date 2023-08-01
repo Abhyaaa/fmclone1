@@ -17,11 +17,9 @@ if [[ -d "${OWNCLOUD_PRE_SERVER_PATH}" ]]; then
 fi
 
 # Changes made to disable logs to bypass non /dev/stdout in singularity tmpfs
+# note that some are done at build time since this is not writable at runtime
 sed -i 's/^.*ErrorLog.*$//' /etc/apache2/sites-enabled/default.conf
 sed -i 's/^.*CustomLog.*$//' /etc/apache2/sites-enabled/default.conf
-sed -i 's/^.*ErrorLog.*$//' /etc/apache2/apache2.conf
-sed -i 's/^.*CustomLog.*$//' /etc/apache2/apache2.conf
-mkdir -p /etc/apache2/logs
 # End tmpfs changes
 
 echo "Starting apache daemon..."
