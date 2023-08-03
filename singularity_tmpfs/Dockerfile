@@ -9,6 +9,7 @@ COPY server /usr/bin/server
 # make writable Apache log and template directories
 RUN rm -rf /etc/apache2/sites-enabled && ln -s /tmp/sites-enabled /etc/apache2/sites-enabled
 RUN rm -rf /etc/apache2/logs && ln -s /tmp /etc/apache2/logs
+RUN userdel -r nimbix
 
 # fix Apache configuration
 RUN sed -i 's/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
