@@ -45,7 +45,6 @@ filebrowser -d $DATABASE config init > /dev/null 2> /dev/null
 filebrowser -d $DATABASE config set --commands $COMMANDS > /dev/null 2> /dev/null
 filebrowser -d $DATABASE config set --auth.method noauth > /dev/null 2> /dev/null
 filebrowser -d $DATABASE config set --perm.share=false > /dev/null 2> /dev/null
-filebrowser -d $DATABASE config set --perm.download=false > /dev/null 2> /dev/null
 filebrowser -d $DATABASE users add $JARVICE_ID_USER nimbix > /dev/null 2> /dev/null
 
 if [[ -n $JARVICE_INGRESSPATH ]]; then
