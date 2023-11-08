@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 JARVICE_ID_USER="${JARVICE_ID_USER:-nimbix}"
 
 COMMANDS=""
@@ -26,9 +28,6 @@ for f in /usr/bin/*; do
         COMMANDS="$COMMANDS,$com"
     fi
 done
-# echo $COMMANDS
-
-set -x
 
 # Use /data to hold user settings
 DATABASE=/data/AppConfig/filebrowser/filebrowser.db
@@ -45,8 +44,13 @@ fi
 filebrowser -d $DATABASE config init > /dev/null 2> /dev/null
 filebrowser -d $DATABASE config set --commands $COMMANDS > /dev/null 2> /dev/null
 filebrowser -d $DATABASE config set --auth.method noauth > /dev/null 2> /dev/null
+filebrowser -d $DATABASE config set --perm.share=false > /dev/null 2> /dev/null
+filebrowser -d $DATABASE config set --perm.download=false > /dev/null 2> /dev/null
 filebrowser -d $DATABASE users add $JARVICE_ID_USER nimbix > /dev/null 2> /dev/null
 
-# echo "filebrowser -r /data --username $JARVICE_ID_USER --password nimbix --address 0.0.0.0 --port 5902 -b /${JARVICE_INGRESSPATH:-}"
-BASEURL="/$JARVICE_INGRESSPATH/$(cat /etc/JARVICE/random128.txt | cut -c 1-64)"
+if [[ -n $JARVICE_INGRESSPATH ]]; then
+    BASEURL="/$JARVICE_INGRESSPATH/$(cat /etc/JARVICE/random128.txt | cut -c 1-64)"
+else
+    BASEURL="/"
+fi
 filebrowser -d $DATABASE -r $STARTING_DIRECTORY --username $JARVICE_ID_USER --password nimbix --address 0.0.0.0 --port 5902 -b "$BASEURL"
