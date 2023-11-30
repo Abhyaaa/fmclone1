@@ -29,11 +29,7 @@ for f in /usr/bin/*; do
     fi
 done
 
-# Use /data to hold user settings
-DATABASE=/data/AppConfig/filebrowser/filebrowser.db
-if [[ ! -f $DATABASE ]]; then
-    mkdir -p $(dirname $DATABASE)
-fi
+set -x
 
 if [[ -z $STARTING_DIRECTORY ]]; then
     STARTING_DIRECTORY="/data"
@@ -41,11 +37,20 @@ else
     mkdir -p $STARTING_DIRECTORY
 fi
 
-filebrowser -d $DATABASE config init > /dev/null 2> /dev/null
-filebrowser -d $DATABASE config set --commands $COMMANDS > /dev/null 2> /dev/null
-filebrowser -d $DATABASE config set --auth.method noauth > /dev/null 2> /dev/null
-filebrowser -d $DATABASE config set --perm.share=false > /dev/null 2> /dev/null
-filebrowser -d $DATABASE users add $JARVICE_ID_USER nimbix > /dev/null 2> /dev/null
+# Use /data to hold user settings
+DATABASE=/data/AppConfig/filebrowser/filebrowser.db
+if [[ -n $DELETE_OLD_DB ]]; then
+    rm $DATABASE
+fi
+
+if [[ ! -f $DATABASE ]]; then
+    mkdir -p $(dirname $DATABASE)
+    filebrowser -d $DATABASE config init > /dev/null 2> /dev/null
+    filebrowser -d $DATABASE config set --commands $COMMANDS > /dev/null 2> /dev/null
+    filebrowser -d $DATABASE config set --auth.method noauth > /dev/null 2> /dev/null
+    filebrowser -d $DATABASE config set --perm.share=false > /dev/null 2> /dev/null
+    filebrowser -d $DATABASE users add $JARVICE_ID_USER nimbix > /dev/null 2> /dev/null
+fi
 
 if [[ -n $JARVICE_INGRESSPATH ]]; then
     BASEURL="/$JARVICE_INGRESSPATH/$(cat /etc/JARVICE/random128.txt | cut -c 1-64)"

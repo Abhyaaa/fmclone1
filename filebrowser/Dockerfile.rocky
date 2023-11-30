@@ -1,4 +1,4 @@
-FROM ubuntu:jammy as builder
+FROM rockylinux:9 as builder
 # FROM ubuntu:jammy
 
 # RUN apt-get -y update && apt-get -y upgrade && \
@@ -10,7 +10,7 @@ FROM ubuntu:jammy as builder
 # RUN add-apt-repository ppa:mozillateam/ppa && \
 #     apt-get install -y firefox-esr
 
-RUN apt-get -y update && apt-get -y upgrade && apt-get install -y unrar p7zip p7zip-full curl
+RUN dnf -y update && dnf install -y epel-release && dnf install -y unrar p7zip zip unzip
 
 RUN curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash
 
@@ -43,9 +43,9 @@ RUN mkdir -p /etc/NAE && touch /etc/NAE/screenshot.png /etc/NAE/screenshot.txt /
 #     git \
 #     xz-utils
 
-RUN apt-get -y autoclean && \
-    apt-get -y autoremove && \
-    apt-get clean
+# RUN apt-get -y autoclean && \
+#     apt-get -y autoremove && \
+#     apt-get clean
 
 # WORKDIR /var/www
 
