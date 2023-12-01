@@ -72,6 +72,10 @@ RUN apt-get -y autoclean && \
     apt-get -y autoremove && \
     apt-get clean
 
+# Remove CVE-2023-49103
+RUN rm -rf /etc/skel/owncloud/apps/graphapi/vendor/microsoft/microsoft-graph/tests && \
+    rm -rf /etc/skel/owncloud_root/apps/graphapi/vendor/microsoft/microsoft-graph/tests
+
 WORKDIR /var/www
 
 FROM scratch
