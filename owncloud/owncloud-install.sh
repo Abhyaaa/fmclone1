@@ -123,7 +123,7 @@ occ app:enable files_external
 occ files_external:create / local null::null
 occ files_external:config 1 datadir /data
 occ files_external:option 1 enable_sharing true
-occ config:app:set --value 'ftp,dav,owncloud,sftp,amazons3,dropbox,googledrive,swift,smb,local' files_external user_mounting_backends
+occ config:app:set --value 'local' files_external user_mounting_backends
 occ config:app:set --value=yes -- core enable_external_storage
 
 # Check each file or folder at most once per request

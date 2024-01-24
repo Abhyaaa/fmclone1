@@ -3,11 +3,11 @@ FROM owncloud/server:10.9 as builder
 LABEL maintainer="Nimbix, Inc."
 
 # Serial Number
-ARG SERIAL_NUMBER=20230407.1000
+ARG SERIAL_NUMBER=20240124.1000
 ENV SERIAL_NUMBER=${SERIAL_NUMBER}
 
-ARG OC_CONFIG_ROOT
-ENV OC_CONFIG_ROOT=/etc/skel/owncloud
+ARG OC_CONFIG_ROOT=/etc/skel/owncloud
+ENV OC_CONFIG_ROOT=${OC_CONFIG_ROOT}
 
 # Try adding a file that apache keeps erroring at
 RUN mkdir -p /etc/apache2 && touch /etc/apache2/envvars
