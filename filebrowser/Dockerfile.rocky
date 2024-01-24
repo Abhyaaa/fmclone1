@@ -1,16 +1,6 @@
 FROM rockylinux:9 as builder
-# FROM ubuntu:jammy
 
-# RUN apt-get -y update && apt-get -y upgrade && \
-#     DEBIAN_FRONTEND=noninteractive apt-get -y install ca-certificates curl --no-install-recommends && \
-#     curl -H 'Cache-Control: no-cache' \
-#         https://raw.githubusercontent.com/nimbix/jarvice-desktop/master/install-nimbix.sh \
-#         | bash
-
-# RUN add-apt-repository ppa:mozillateam/ppa && \
-#     apt-get install -y firefox-esr
-
-RUN dnf -y update && dnf install -y epel-release && dnf install -y unrar p7zip zip unzip
+RUN dnf -y update && dnf install -y epel-release && dnf install -y unrar p7zip zip unzip && dnf clean all -y
 
 RUN curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash
 

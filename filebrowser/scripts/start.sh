@@ -29,8 +29,6 @@ for f in /usr/bin/*; do
     fi
 done
 
-set -x
-
 if [[ -z $STARTING_DIRECTORY ]]; then
     STARTING_DIRECTORY="/data"
 else
@@ -38,7 +36,8 @@ else
 fi
 
 # Use /data to hold user settings
-DATABASE=/data/AppConfig/filebrowser/filebrowser.db
+# DATABASE=/data/AppConfig/filebrowser/filebrowser.db
+DATABASE="$STARTING_DIRECTORY/AppConfig/filebrowser/filebrowser.db"
 if [[ -n $DELETE_OLD_DB ]]; then
     rm $DATABASE
 fi
