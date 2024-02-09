@@ -1,5 +1,5 @@
 {
-  "name": "JARVICE File Browser (ALPHA 3.0)",
+  "name": "JARVICE File Browser (ALPHA 4.0)",
   "description": "The JARVICE File Manager is a browser-based service that allows you to easily upload and download files from the Nimbix Cloud.",
   "author": "EVIDEN, Inc.",
   "licensed": true,
@@ -22,7 +22,7 @@
       "interactive": true,
       "name": "File Browser",
       "description": "Launch this service to upload and download files via your web browser",
-      "url": "http://%PUBLICADDR%:5902/%RANDOM64%",
+      "url": "http://%PUBLICADDR%:5902/login?user=%NIMBIXUSER%&token=%RANDOM64%",
       "parameters": {
 	      "-c": {
         "name": "-c",
@@ -47,6 +47,13 @@
         },
         "DELETE_OLD_DB": {
           "name": "Delete old user config",
+          "type": "BOOL",
+          "value": false,
+          "required": false,
+          "variable": true
+        },
+        "DARK_MODE": {
+          "name": "Use Dark Mode",
           "type": "BOOL",
           "value": false,
           "required": false,
