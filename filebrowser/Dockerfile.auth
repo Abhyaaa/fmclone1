@@ -1,0 +1,33 @@
+FROM rockylinux:9 as builder
+
+RUN dnf update -y
+
+RUN dnf install -y epel-release
+
+RUN dnf install -y \
+    unrar \
+    p7zip \
+    zip \
+    unzip \
+    git \
+    npm \
+    golang \
+    yarnpkg \
+    make
+
+COPY src/filebrowser /opt/filebrowser
+
+WORKDIR /opt/filebrowser
+
+RUN make build
+
+FROM rockylinux:9
+
+RUN dnf -y update && dnf install -y epel-release && dnf install -y unrar p7zip zip unzip wget git && dnf clean all -y
+
+COPY --from=builder /opt/filebrowser/filebrowser /opt/filebrowser/filebrowser
+
+COPY scripts /usr/local/scripts
+COPY NAE /etc/NAE
+RUN curl --fail -X POST -d @/etc/NAE/AppDef.json https://cloud.nimbix.net/api/jarvice/validate
+RUN mkdir -p /etc/NAE && touch /etc/NAE/screenshot.png /etc/NAE/screenshot.txt /etc/NAE/license.txt /etc/NAE/AppDef.json
